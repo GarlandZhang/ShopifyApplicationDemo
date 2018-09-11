@@ -1,0 +1,8 @@
+{
+  "shopId": 1,
+  "name": "AnimalFarm",
+  "vendorId": 234,
+  "description": "Sell animal toys",
+  "orders": null,
+  "products": null
+}

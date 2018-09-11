@@ -1,0 +1,7 @@
+{
+  "timestamp": "2018-09-11T02:55:15.420+0000",
+  "status": 500,
+  "error": "Internal Server Error",
+  "message": "could not extract ResultSet",
+  "path": "/shop/get/id"
+}

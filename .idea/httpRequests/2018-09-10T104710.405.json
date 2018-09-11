@@ -1,0 +1,7 @@
+{
+  "timestamp": "2018-09-11T02:47:10.111+0000",
+  "status": 405,
+  "error": "Method Not Allowed",
+  "message": "Request method 'GET' not supported",
+  "path": "/shop/create/new"
+}

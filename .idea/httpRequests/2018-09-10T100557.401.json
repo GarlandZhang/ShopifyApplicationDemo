@@ -1,0 +1,7 @@
+{
+  "timestamp": "2018-09-11T02:05:57.471+0000",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Unauthorized",
+  "path": "/a/public/hello"
+}
