@@ -16,7 +16,7 @@ import java.math.BigInteger;
 public class LineItem {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     Integer lineItemId;
     Integer productId;
     Integer orderId;

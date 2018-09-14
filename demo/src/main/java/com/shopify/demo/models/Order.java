@@ -17,7 +17,7 @@ import java.math.BigInteger;
 public class Order {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     Integer orderId;
     Integer shopId;
     Integer customerId;

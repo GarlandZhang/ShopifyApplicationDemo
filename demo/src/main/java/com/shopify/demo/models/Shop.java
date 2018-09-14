@@ -16,7 +16,7 @@ import java.util.List;
 public class Shop {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     Integer shopId;
     String name;
     Integer vendorId;
