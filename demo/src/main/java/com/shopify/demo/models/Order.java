@@ -11,10 +11,10 @@ import javax.sound.sampled.Line;
 import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -42,4 +42,10 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     List<LineItem> lineItems;
+
+    public Order() {
+        creationDate = new Date(Calendar.getInstance().getTimeInMillis());
+        updateDate = new Date(Calendar.getInstance().getTimeInMillis());
+        total = (float) 0;
+    }
 }

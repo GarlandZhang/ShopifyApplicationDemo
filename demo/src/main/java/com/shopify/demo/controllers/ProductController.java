@@ -31,11 +31,23 @@ public class ProductController {
     @Autowired
     LineItemRepository lineItemRepository;
 
+    /**
+     * createProduct: create new Product for the Shop with id, shopId using the fields of newProduct
+     * @param newProduct
+     * @param shopId
+     * @return the newly created Product
+     * @throws Exception
+     */
     @PostMapping("/shop/{shopId}/product/create")
     private Product createProduct(@RequestBody Product newProduct, @PathVariable Integer shopId) throws Exception{
         return updateProductWithFlag(newProduct, -1,true, shopId);
     }
 
+    /**
+     * getAllProduct: gets all products.
+     *  Use cases: User wants to skim through all products for available purchase
+     * @return list of all Products
+     */
     @GetMapping("/product/all")
     private List<Product> getAllProduct() {
         List<Product> productList = productRepository.getAllMin();
@@ -45,6 +57,11 @@ public class ProductController {
         return productList;
     }
 
+    /**
+     * getLineItemsByProductId: gets list of List Items of Product with id, productId
+     * @param productId
+     * @return
+     */
     @GetMapping("/product/{productId}/line-item/all")
     private List<LineItem> getLineItemsByProductId(@PathVariable Integer productId) {
         List<LineItem> lineItems = lineItemRepository.getAllByProductIdMin(productId);
@@ -54,6 +71,12 @@ public class ProductController {
         return lineItems;
     }
 
+    /**
+     * getProductById: gets Product with id, productId
+     * @param productId
+     * @return the requested Product
+     * @throws Exception
+     */
     @GetMapping("/product/{productId}")
     private Product getProductById(@PathVariable Integer productId) throws Exception {
         Product product = productRepository.getProductByIdMin(productId);
@@ -63,31 +86,50 @@ public class ProductController {
         return product;
     }
 
+    /**
+     * updateProduct: updates Product with id, productId, using updateProduct fields
+     * @param updatedProduct
+     * @param productId
+     * @return an updated existing Product
+     * @throws Exception
+     */
     @PutMapping("/product/{productId}")
     private Product updateProduct(@RequestBody Product updatedProduct,
                                   @PathVariable Integer productId) throws Exception {
         return updateProductWithFlag(updatedProduct, productId, false, -1);
     }
 
-    private Product updateProductWithFlag(Product newProduct, Integer id, boolean createNewFlag, Integer shopId) throws Exception {
+    /**
+     * updateProductWithFlag: updates existing Product with id, productId, using the updatedProduct fields (and shopId); creates a new Product
+     *  if createNewFlag is true
+     * @param updatedProduct
+     * @param id
+     * @param createNewFlag
+     * @param shopId
+     * @return a newly generated Product or updated existing Product
+     * @throws Exception
+     */
+    private Product updateProductWithFlag(Product updatedProduct, Integer id, boolean createNewFlag, Integer shopId) throws Exception {
         Product prod;
 
+        // check if new Product is being created
         if(createNewFlag) {
             prod = new Product();
+
+            // set shopId
             Shop shop = shopRepository.getShopByIdMin(shopId);
-            if(shop != null){
-                prod.setShopId(shopId);
-//                prod.setShop(shop);
-            } else throw new Exception("500: Shop by this id does not exist");
+            if(shop == null) throw new Exception("500: Shop by this id does not exist");
+            prod.setShopId(shopId);
         } else {
             prod = productRepository.getProductByIdMin(id);
         }
 
         if(prod == null) throw new Exception("500: Product by this id does not exist");
 
-        prod.setName(newProduct.getName());
-        prod.setDescription(newProduct.getDescription());
-        prod.setPrice(newProduct.getPrice());
+        // set new properties
+        prod.setName(updatedProduct.getName());
+        prod.setDescription(updatedProduct.getDescription());
+        prod.setPrice(updatedProduct.getPrice());
 
         productRepository.save(prod);
 
@@ -95,6 +137,11 @@ public class ProductController {
     }
 
 
+    /**
+     * deleteProduct: deletes Product with id, productId
+     * @param productId
+     * @return successful deletion message
+     */
     @DeleteMapping("/product/{productId}")
     private String deleteProduct(@PathVariable Integer productId) {
         productRepository.deleteProductById(productId);

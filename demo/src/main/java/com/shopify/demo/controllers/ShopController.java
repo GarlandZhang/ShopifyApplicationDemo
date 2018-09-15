@@ -34,8 +34,14 @@ public class ShopController {
     @Autowired
     OrderRepository orderRepository;
 
+    /**
+     * createNew: creates new Shop with newShop fields
+     * @param newShop
+     * @return newly created Shop
+     * @throws Exception
+     */
     @PostMapping("/create")
-    private Shop createNew(@RequestBody Shop newShop, boolean createNewFlag) throws Exception {
+    private Shop createNew(@RequestBody Shop newShop) throws Exception {
 
         Shop savedShop = updateShopByIdWithFlag(newShop, -1, true);
 
@@ -44,7 +50,11 @@ public class ShopController {
         return savedShop;
     }
 
-
+    /**
+     * getAllShops: returns all Shops in database.
+     * Use case: Users that want to see all available Shops
+     * @return list of all Shops
+     */
     @GetMapping("/all")
     private List<Shop> getAllShops() {
 
@@ -55,6 +65,11 @@ public class ShopController {
         return shops;
     }
 
+    /**
+     * getAllProductInShop: get all Products belonging to this Shop with id, shopId
+     * @param shopId
+     * @return list of all the Shop's Products
+     */
     @GetMapping("/{shopId}/product/all")
     private List<Product> getAllProductInShop(@PathVariable Integer shopId) {
         List<Product> productList = productRepository.getAllByShopIdMin(shopId);
@@ -64,6 +79,11 @@ public class ShopController {
         return productList;
     }
 
+    /**
+     * getAllOrderInShop: gets all Orders belonging to this Shop with id, shopId
+     * @param shopId
+     * @return list of all Shop's Orders
+     */
     @GetMapping("/{shopId}/order/all")
     private List<Order> getAllOrderInShop(@PathVariable Integer shopId) {
         List<Order> orderList = orderRepository.getAllByShopIdMin(shopId);
@@ -83,13 +103,32 @@ public class ShopController {
         return shops;
     }*/
 
+    /**
+     * getShopById: gets Shop with id, shopId
+     * @param shopId
+     * @return the requested Shop
+     */
     @GetMapping("/{shopId}")
-    private Shop getShopById(@PathVariable Integer shopId) {
-        return shopRepository.getShopByIdMin(shopId);
+    private Shop getShopById(@PathVariable Integer shopId) throws Exception {
+        Shop shop = shopRepository.getShopByIdMin(shopId);
+
+        if(shop == null) throw new Exception("500: No Shop exists by this id");
+
+        return shop;
     }
 
+    /**
+     * updateShopByIdWithFlag: updates existing Shop with id using updatedShop fields;
+     *  creates new Shop otherwise if createNewFlag is true
+     * @param updatedShop
+     * @param id
+     * @param createNewFlag
+     * @return the newly generated Shop or the updated existing Shop
+     * @throws Exception
+     */
     private Shop updateShopByIdWithFlag(@RequestBody Shop updatedShop, Integer id, boolean createNewFlag) throws Exception {
         Shop shop = null;
+
         if(createNewFlag) {
             shop = new Shop();
         } else {
@@ -98,6 +137,7 @@ public class ShopController {
 
         if(shop == null) throw new Exception("500: shop does not exist with this id");
 
+        // update with new properties
         shop.setName(updatedShop.getName());
         shop.setVendorId(updatedShop.getVendorId());
         shop.setDescription(updatedShop.getDescription());
@@ -107,6 +147,13 @@ public class ShopController {
         return shop;
     }
 
+    /**
+     * updateShopById: updates Shop with id, shopId, using updatedShop fields
+     * @param updatedShop
+     * @param shopId
+     * @return updated Shop
+     * @throws Exception
+     */
     @PutMapping("/{shopId}")
     private Shop updateShopById(@RequestBody Shop updatedShop, @PathVariable Integer shopId) throws Exception {
         Shop shop = updateShopByIdWithFlag(updatedShop, shopId, false);
@@ -116,6 +163,12 @@ public class ShopController {
         return shop;
     }
 
+    /**
+     * deleteShopById: deletes Shop with id, shopId
+     * @param shopId
+     * @return successful deletion message
+     * @throws Exception
+     */
     @DeleteMapping("/{shopId}")
     private String deleteShopById(@PathVariable Integer shopId) throws Exception {
         shopRepository.deleteShopById(shopId);

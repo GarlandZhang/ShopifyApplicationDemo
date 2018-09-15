@@ -191,13 +191,13 @@ public class LineItemController {
     @DeleteMapping("/line-item/{lineItemId}")
     private String deleteLineItemId(@PathVariable Integer lineItemId) throws Exception {
 
-        //
         LineItem lineItem = lineItemRepository.getLineItemByIdMin(lineItemId);
         if(lineItem == null) throw new Exception("Line Item does not exist with this id");
 
         Order order = orderRepository.getOrderByLineItemIdMin(lineItemId);
         if(order == null) throw new Exception("Order does not exist for this line item");
 
+        // set new total
         order.setTotal(order.getTotal() - calcTotalLineItem(lineItem));
         orderRepository.save(order);
 

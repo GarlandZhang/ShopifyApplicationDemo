@@ -89,10 +89,10 @@ public class OrderController {
     }
 
     /**
-     * updateOrder:
+     * updateOrder: updates Order with id, orderId, using the properties of updatedOrder
      * @param updatedOrder
      * @param orderId
-     * @return
+     * @return updated Order
      * @throws Exception
      */
     @PutMapping("/order/{orderId}")
@@ -100,29 +100,46 @@ public class OrderController {
         return updateOrderWithFlag(updatedOrder, orderId, false, -1);
     }
 
+    /**
+     * updateOrderWithFlag: updates existing Order with id using properties of newOrder; creates new Order if createNewFlag is true
+     *  Current use case is limited but can be extended from adding more properties in Order model.
+     * @param newOrder
+     * @param id
+     * @param createNewFlag
+     * @param shopId
+     * @return the newly created Order or updated Order
+     * @throws Exception
+     */
     private Order updateOrderWithFlag(Order newOrder, Integer id, boolean createNewFlag, Integer shopId) throws Exception {
         Order order;
 
+        // if true, create new Order and set property
         if(createNewFlag) {
             order = new Order();
+
+            // find parent Shop to verify it exists
             Shop shop = shopRepository.getShopByIdMin(shopId);
-            if(shop != null) {
-                order.setShopId(shopId);
-            } else throw new Exception("500: Shop by this id does not exist");
-            order.setCreationDate(new Date(Calendar.getInstance().getTimeInMillis()));
-            order.setTotal((float) 0);
+            if(shop == null) throw new Exception("500: Shop by this id does not exist");
+            order.setShopId(shopId);
+
         } else {
             order = orderRepository.getOrderByIdMin(id);
         }
 
         if(order == null) throw new Exception("500: Order by this id does not exist");
 
+        // set new properties
         order.setUpdateDate(new Date(Calendar.getInstance().getTimeInMillis()));
         orderRepository.save(order);
 
         return order;
     }
 
+    /**
+     * cancelOrder: deletes Order with id, orderId
+     * @param orderId
+     * @return message that Order successfully cancelled
+     */
     @DeleteMapping("/order/{orderId}")
     private String cancelOrder(@PathVariable Integer orderId) {
         orderRepository.deleteOrderById(orderId);
