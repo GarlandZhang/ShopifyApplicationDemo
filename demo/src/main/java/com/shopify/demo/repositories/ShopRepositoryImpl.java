@@ -67,8 +67,12 @@ public class ShopRepositoryImpl implements ShopRepository{
     }
 
     private Shop minififyShop(Shop shop) {
-        shop.setProducts(null);
-        shop.setOrders(null);
+        if(shop != null) {
+            shop.setProducts(null);
+//            shop.setOrders(null);
+            return shop;
+        }
+
         return shop;
     }
 }

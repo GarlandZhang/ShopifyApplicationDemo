@@ -20,9 +20,9 @@ public class Product {
     String name;
     String description;
     Float price;
-    Integer shopId;
+    Integer shopIdVal;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name="shopId", insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name="shopIdVal", insertable=false, updatable=false)
     Shop shop;
 }

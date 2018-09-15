@@ -17,16 +17,15 @@ public class Shop {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "shopId", nullable = false, updatable = false)
     Integer shopId;
     String name;
     Integer vendorId;
     String description;
+/*
+    @OneToMany(mappedBy="shop", cascade = CascadeType.ALL)
+    List<Order> orders;*/
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name="shopId", insertable = false, updatable = false)
-    List<Order> orders;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name="shopId", insertable = false, updatable = false)
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     List<Product> products;
 }
