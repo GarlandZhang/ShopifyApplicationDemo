@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -68,8 +69,8 @@ public class ShopRepositoryImpl implements ShopRepository{
 
     private Shop minififyShop(Shop shop) {
         if(shop != null) {
-            shop.setProducts(null);
-//            shop.setOrders(null);
+            shop.setProducts(new ArrayList<>());
+            shop.setOrders(new ArrayList<>());
             return shop;
         }
 

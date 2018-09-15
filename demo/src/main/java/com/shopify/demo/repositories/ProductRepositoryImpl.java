@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -17,6 +18,9 @@ public class ProductRepositoryImpl implements ProductRepository{
     @Autowired
     ShopJPARepository shopJPARepository;
 
+    @Autowired
+    LineItemRepository lineItemRepository;
+
     @Override
     public Product getProductById(Integer id) {
         return productJPARepository.findProductByProductId(id);
@@ -28,7 +32,10 @@ public class ProductRepositoryImpl implements ProductRepository{
     }
 
     private Product minifyProduct(Product productById) {
-        if(productById != null) productById.setShop(null);
+        if(productById != null){
+            productById.setShop(null);
+            productById.setLineItems(new ArrayList<>());
+        }
 
         return productById;
     }
@@ -63,7 +70,7 @@ public class ProductRepositoryImpl implements ProductRepository{
 
     @Override
     public List<Product> getAllByShopId(Integer shopId) {
-        return productJPARepository.findAllByShopIdVal(shopId);
+        return productJPARepository.findAllByShopId(shopId);
     }
 
     @Override
@@ -77,5 +84,15 @@ public class ProductRepositoryImpl implements ProductRepository{
         }
 
         return products;
+    }
+
+    @Override
+    public Product getProductByLineItemId(Integer lineItemId) {
+        return productJPARepository.findProductByProductId(lineItemRepository.getLineItemById(lineItemId).getProductId());
+    }
+
+    @Override
+    public Product getProductByLineItemIdMin(Integer lineItemId) {
+        return minifyProduct(getProductByLineItemId(lineItemId));
     }
 }

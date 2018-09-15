@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.math.BigInteger;
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -25,11 +24,18 @@ public class LineItem {
     Float price;
     Float discount;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="orderId", insertable = false, updatable = false)
     Order order;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="productId", insertable = false, updatable = false)
     Product product;
+
+    public LineItem() {
+        properties = "";
+        quantity = 0;
+        price = (float)0;
+        discount = (float)0;
+    }
 }

@@ -1,7 +1,9 @@
 package com.shopify.demo.controllers;
 
+import com.shopify.demo.models.LineItem;
 import com.shopify.demo.models.Product;
 import com.shopify.demo.models.Shop;
+import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.ProductRepository;
 import com.shopify.demo.repositories.ShopRepository;
 import lombok.AllArgsConstructor;
@@ -26,6 +28,9 @@ public class ProductController {
     @Autowired
     ShopRepository shopRepository;
 
+    @Autowired
+    LineItemRepository lineItemRepository;
+
     @PostMapping("/shop/{shopId}/product/create")
     private Product createProduct(@RequestBody Product newProduct, @PathVariable Integer shopId) throws Exception{
         return updateProductWithFlag(newProduct, -1,true, shopId);
@@ -40,6 +45,15 @@ public class ProductController {
         return productList;
     }
 
+    @GetMapping("/product/{productId}/line-item/all")
+    private List<LineItem> getLineItemsByProductId(@PathVariable Integer productId) {
+        List<LineItem> lineItems = lineItemRepository.getAllByProductIdMin(productId);
+
+        if(lineItems == null) return new ArrayList<>();
+
+        return lineItems;
+    }
+
     @GetMapping("/product/{productId}")
     private Product getProductById(@PathVariable Integer productId) throws Exception {
         Product product = productRepository.getProductByIdMin(productId);
@@ -49,7 +63,7 @@ public class ProductController {
         return product;
     }
 
-    @PutMapping("/product/{productId}/")
+    @PutMapping("/product/{productId}")
     private Product updateProduct(@RequestBody Product updatedProduct,
                                   @PathVariable Integer productId) throws Exception {
         return updateProductWithFlag(updatedProduct, productId, false, -1);
@@ -62,7 +76,7 @@ public class ProductController {
             prod = new Product();
             Shop shop = shopRepository.getShopByIdMin(shopId);
             if(shop != null){
-                prod.setShopIdVal(shopId);
+                prod.setShopId(shopId);
 //                prod.setShop(shop);
             } else throw new Exception("500: Shop by this id does not exist");
         } else {
@@ -81,7 +95,7 @@ public class ProductController {
     }
 
 
-    @DeleteMapping("/product/{productId}/")
+    @DeleteMapping("/product/{productId}")
     private String deleteProduct(@PathVariable Integer productId) {
         productRepository.deleteProductById(productId);
 

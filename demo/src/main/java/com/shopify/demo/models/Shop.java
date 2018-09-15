@@ -22,9 +22,9 @@ public class Shop {
     String name;
     Integer vendorId;
     String description;
-/*
+
     @OneToMany(mappedBy="shop", cascade = CascadeType.ALL)
-    List<Order> orders;*/
+    List<Order> orders;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     List<Product> products;

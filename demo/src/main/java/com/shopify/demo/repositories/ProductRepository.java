@@ -20,4 +20,8 @@ public interface ProductRepository {
     List<Product> getAllByShopId(Integer shopId);
 
     List<Product> getAllByShopIdMin(Integer shopId);
+
+    Product getProductByLineItemId(Integer lineItemId);
+
+    Product getProductByLineItemIdMin(Integer lineItemId);
 }

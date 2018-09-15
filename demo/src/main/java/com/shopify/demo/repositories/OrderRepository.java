@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface OrderRepository {
     
-    Order getOrder(Integer orderId);
+    Order getOrderById(Integer orderId);
     
     Order getOrderByIdMin(Integer orderId);
 
@@ -21,4 +21,8 @@ public interface OrderRepository {
     void deleteOrderById(Integer orderId);
 
     List<Order> getAllByShopIdMin(Integer shopId);
+
+    Order getOrderByLineItemId(Integer lineItemId);
+
+    Order getOrderByLineItemIdMin(Integer lineItemId);
 }

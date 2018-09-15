@@ -1,7 +1,9 @@
 package com.shopify.demo.controllers;
 
+import com.shopify.demo.models.LineItem;
 import com.shopify.demo.models.Order;
 import com.shopify.demo.models.Shop;
+import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ShopRepository;
 import lombok.AllArgsConstructor;
@@ -29,11 +31,25 @@ public class OrderController {
     @Autowired
     ShopRepository shopRepository;
 
-    @PostMapping("/shop/{shopId}/order/")
+    @Autowired
+    LineItemRepository lineItemRepository;
+
+    /**
+     * createOrder: creates new Order with properties in newOrder for Shop with id, shopId
+     * @param newOrder
+     * @param shopId
+     * @return returns the newly created Order
+     * @throws Exception
+     */
+    @PostMapping("/shop/{shopId}/order/create")
     private Order createOrder(@RequestBody Order newOrder, @PathVariable Integer shopId) throws Exception {
         return updateOrderWithFlag(newOrder, -1, true, shopId);
     }
 
+    /**
+     * getOrders: ADMIN USE ONLY. Gets all Order in database
+     * @return all active Orders
+     */
     @GetMapping("/order/all")
     private List<Order> getOrders() {
         List<Order> orders = orderRepository.getAllOrdersMin();
@@ -43,6 +59,12 @@ public class OrderController {
         return orders;
     }
 
+    /**
+     * getOrder: Get Order with id, orderId
+     * @param orderId
+     * @return the requested Order
+     * @throws Exception
+     */
     @GetMapping("/order/{orderId}")
     private Order getOrder(@PathVariable Integer orderId) throws Exception {
         Order order = orderRepository.getOrderByIdMin(orderId);
@@ -52,6 +74,27 @@ public class OrderController {
         return order;
     }
 
+    /**
+     * getLineItemsByOrderId: gets Line Items for the requested Order with id, orderId
+     * @param orderId
+     * @return list of all List Items
+     */
+    @GetMapping("/order/{orderId}/line-item/all")
+    private List<LineItem> getLineItemsByOrderId(@PathVariable Integer orderId) {
+        List<LineItem> lineItems = lineItemRepository.getAllByOrderIdMin(orderId);
+
+        if(lineItems == null) return new ArrayList<>();
+
+        return lineItems;
+    }
+
+    /**
+     * updateOrder:
+     * @param updatedOrder
+     * @param orderId
+     * @return
+     * @throws Exception
+     */
     @PutMapping("/order/{orderId}")
     private Order updateOrder(@RequestBody Order updatedOrder, @PathVariable Integer orderId) throws Exception {
         return updateOrderWithFlag(updatedOrder, orderId, false, -1);
@@ -65,9 +108,9 @@ public class OrderController {
             Shop shop = shopRepository.getShopByIdMin(shopId);
             if(shop != null) {
                 order.setShopId(shopId);
-//                order.setShop(shop);
             } else throw new Exception("500: Shop by this id does not exist");
             order.setCreationDate(new Date(Calendar.getInstance().getTimeInMillis()));
+            order.setTotal((float) 0);
         } else {
             order = orderRepository.getOrderByIdMin(id);
         }
@@ -82,7 +125,6 @@ public class OrderController {
 
     @DeleteMapping("/order/{orderId}")
     private String cancelOrder(@PathVariable Integer orderId) {
-        // find orderId based on customerId
         orderRepository.deleteOrderById(orderId);
 
         return "200: Cancelled Order";

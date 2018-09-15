@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -20,9 +21,13 @@ public class Product {
     String name;
     String description;
     Float price;
-    Integer shopIdVal;
+    Integer shopId;
 
     @ManyToOne
-    @JoinColumn(name="shopIdVal", insertable=false, updatable=false)
+    @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    List<LineItem> lineItems;
+
 }

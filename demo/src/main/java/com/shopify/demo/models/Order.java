@@ -25,19 +25,21 @@ public class Order {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Integer orderId;
     Integer shopId;
-    Integer customerId;
+//    Integer customerId;
     Date creationDate;
     Date updateDate;
+    Float total;
 
     @ManyToOne
-    @JoinColumn(name="shop_id", nullable=false)
+    @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name="orderId")
-    List<LineItem> lineItems;
-
+/*
     @ManyToOne
     @JoinColumn(name="customerId", insertable = false, updatable = false)
     User customer;
+*/
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    List<LineItem> lineItems;
 }
