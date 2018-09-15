@@ -9,6 +9,8 @@ import com.shopify.demo.repositories.ShopRepository;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -39,8 +41,16 @@ public class ProductController {
      * @throws Exception
      */
     @PostMapping("/shop/{shopId}/product/create")
-    private Product createProduct(@RequestBody Product newProduct, @PathVariable Integer shopId) throws Exception{
-        return updateProductWithFlag(newProduct, -1,true, shopId);
+    private ResponseEntity<Product> createProduct(@RequestBody Product newProduct, @PathVariable Integer shopId) throws Exception{
+        Product product = updateProductWithFlag(newProduct, -1,true, shopId);
+
+        if(product == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Status", "500: Save unsuccessful")
+                .body(null);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Save successful")
+                .body(product);
     }
 
     /**
@@ -49,12 +59,16 @@ public class ProductController {
      * @return list of all Products
      */
     @GetMapping("/product/all")
-    private List<Product> getAllProduct() {
+    private ResponseEntity<List<Product>> getAllProduct() {
         List<Product> productList = productRepository.getAllAndMinify();
 
-        if(productList == null) return new ArrayList<>();
+        if(productList == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ArrayList());
 
-        return productList;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(productList);
     }
 
     /**
@@ -63,12 +77,16 @@ public class ProductController {
      * @return
      */
     @GetMapping("/product/{productId}/line-item/all")
-    private List<LineItem> getLineItemsByProductId(@PathVariable Integer productId) {
+    private ResponseEntity<List<LineItem>> getLineItemsByProductId(@PathVariable Integer productId) {
         List<LineItem> lineItems = lineItemRepository.getAllByProductIdAndMinify(productId);
 
-        if(lineItems == null) return new ArrayList<>();
+        if(lineItems == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ArrayList<>());
 
-        return lineItems;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(lineItems);
     }
 
     /**
@@ -78,12 +96,16 @@ public class ProductController {
      * @throws Exception
      */
     @GetMapping("/product/{productId}")
-    private Product getProductById(@PathVariable Integer productId) throws Exception {
+    private ResponseEntity<Product> getProductById(@PathVariable Integer productId) throws Exception {
         Product product = productRepository.getProductByIdAndMinify(productId);
 
-        if(product == null) throw new Exception("500: Product does not exist");
+        if(product == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Status", "500: No Product exists with this id: " + productId)
+                .body(null);
 
-        return product;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(product);
     }
 
     /**
@@ -94,9 +116,17 @@ public class ProductController {
      * @throws Exception
      */
     @PutMapping("/product/{productId}")
-    private Product updateProduct(@RequestBody Product updatedProduct,
+    private ResponseEntity<Product> updateProduct(@RequestBody Product updatedProduct,
                                   @PathVariable Integer productId) throws Exception {
-        return updateProductWithFlag(updatedProduct, productId, false, -1);
+        Product product = updateProductWithFlag(updatedProduct, productId, false, -1);
+
+        if(product == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "500: Shop or Product Id does not exist")
+                .body(null);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(product);
     }
 
     /**
@@ -118,13 +148,13 @@ public class ProductController {
 
             // set shopId
             Shop shop = shopRepository.getShopByIdAndMinify(shopId);
-            if(shop == null) throw new Exception("500: Shop by this id does not exist");
+            if(shop == null) return null;
             prod.setShopId(shopId);
         } else {
             prod = productRepository.getProductByIdAndMinify(id);
         }
 
-        if(prod == null) throw new Exception("500: Product by this id does not exist");
+        if(prod == null) return null;
 
         // set new properties
         prod.setName(updatedProduct.getName());
@@ -143,9 +173,11 @@ public class ProductController {
      * @return successful deletion message
      */
     @DeleteMapping("/product/{productId}")
-    private String deleteProduct(@PathVariable Integer productId) {
+    private ResponseEntity<String> deleteProduct(@PathVariable Integer productId) {
         productRepository.deleteProductById(productId);
 
-        return "200: deleted successful";
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Delete successful")
+                .body("Delete successful");
     }
 }

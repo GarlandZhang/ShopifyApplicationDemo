@@ -9,6 +9,8 @@ import com.shopify.demo.repositories.ShopRepository;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -39,13 +41,17 @@ public class ShopController {
      * @throws Exception
      */
     @PostMapping("/create")
-    private Shop createNew(@RequestBody Shop newShop) throws Exception {
+    private ResponseEntity<Shop> createNew(@RequestBody Shop newShop) throws Exception {
 
         Shop savedShop = updateShopByIdWithFlag(newShop, -1, true);
 
-        if(savedShop == null) throw new Exception("500: Could not successfully save file");
+        if(savedShop == null) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Status", "500: Save unsuccessful")
+                .body(null);
 
-        return savedShop;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Save successful")
+                .body(savedShop);
     }
 
     /**
@@ -54,13 +60,30 @@ public class ShopController {
      * @return list of all Shops
      */
     @GetMapping("/all")
-    private List<Shop> getAllShops() {
+    private ResponseEntity<List<Shop>> getAllShops() {
 
         List<Shop> shops = shopRepository.getAllAndMinify();
 
-        if(shops == null) return new ArrayList<Shop>();
+        if(shops == null) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Status", "200: Success")
+                .body(new ArrayList<>());
 
-        return shops;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(shops);
+    }
+
+    @GetMapping("/test")
+    private ResponseEntity<List<Shop>> getShops(){
+        List<Shop> shops = shopRepository.getAllAndMinify();
+
+        if(Math.random() * 2 > 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .header("Status", "500: No shops")
+                                    .body(new ArrayList<>());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(shops);
     }
 
     /**
@@ -69,12 +92,16 @@ public class ShopController {
      * @return list of all the Shop's Products
      */
     @GetMapping("/{shopId}/product/all")
-    private List<Product> getAllProductInShop(@PathVariable Integer shopId) {
+    private ResponseEntity<List<Product>> getAllProductInShop(@PathVariable Integer shopId) {
         List<Product> productList = productRepository.getAllByShopIdAndMinify(shopId);
 
-        if(productList == null) return new ArrayList<>();
+        if(productList == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ArrayList<>());
 
-        return productList;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(productList);
     }
 
     /**
@@ -83,12 +110,16 @@ public class ShopController {
      * @return list of all Shop's Orders
      */
     @GetMapping("/{shopId}/order/all")
-    private List<Order> getAllOrderInShop(@PathVariable Integer shopId) {
+    private ResponseEntity<List<Order>> getAllOrderInShop(@PathVariable Integer shopId) {
         List<Order> orderList = orderRepository.getAllByShopIdAndMinify(shopId);
 
-        if(orderList == null) return new ArrayList<>();
+        if(orderList == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ArrayList<>());
 
-        return orderList;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(orderList);
     }
 
 /*    //TODO: belongs in vendor controller but leave here for now
@@ -107,12 +138,16 @@ public class ShopController {
      * @return the requested Shop
      */
     @GetMapping("/{shopId}")
-    private Shop getShopById(@PathVariable Integer shopId) throws Exception {
+    private ResponseEntity<Shop> getShopById(@PathVariable Integer shopId) throws Exception {
         Shop shop = shopRepository.getShopByIdAndMinify(shopId);
 
-        if(shop == null) throw new Exception("500: No Shop exists by this id");
+        if(shop == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Status", "500: No Shop exists with id: " + shopId)
+                .body(null);
 
-        return shop;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(shop);
     }
 
     /**
@@ -133,7 +168,7 @@ public class ShopController {
             shop = shopRepository.getShopByIdAndMinify(id);
         }
 
-        if(shop == null) throw new Exception("500: shop does not exist with this id");
+        if(shop == null) return null;
 
         // update with new properties
         shop.setName(updatedShop.getName());
@@ -153,12 +188,16 @@ public class ShopController {
      * @throws Exception
      */
     @PutMapping("/{shopId}")
-    private Shop updateShopById(@RequestBody Shop updatedShop, @PathVariable Integer shopId) throws Exception {
+    private ResponseEntity<Shop> updateShopById(@RequestBody Shop updatedShop, @PathVariable Integer shopId) throws Exception {
         Shop shop = updateShopByIdWithFlag(updatedShop, shopId, false);
 
-        if(shop == null) throw new Exception("500: shop does not exist");
+        if(shop == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Status", "500: Shop does not exist with id: " + shopId)
+                .body(null);
 
-        return shop;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Update successful")
+                .body(shop);
     }
 
     /**
@@ -168,9 +207,11 @@ public class ShopController {
      * @throws Exception
      */
     @DeleteMapping("/{shopId}")
-    private String deleteShopById(@PathVariable Integer shopId) throws Exception {
+    private ResponseEntity<String> deleteShopById(@PathVariable Integer shopId) throws Exception {
         shopRepository.deleteShopById(shopId);
-        return "200: successfully deleted";
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Deletion successful")
+                .body("Delete sueccessful");
     }
 
 }
