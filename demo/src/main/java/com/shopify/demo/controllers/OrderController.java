@@ -8,7 +8,6 @@ import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ShopRepository;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,7 +51,7 @@ public class OrderController {
      */
     @GetMapping("/order/all")
     private List<Order> getOrders() {
-        List<Order> orders = orderRepository.getAllOrdersMin();
+        List<Order> orders = orderRepository.getAllOrdersAndMinify();
 
         if(orders == null) return new ArrayList<>();
 
@@ -67,7 +66,7 @@ public class OrderController {
      */
     @GetMapping("/order/{orderId}")
     private Order getOrder(@PathVariable Integer orderId) throws Exception {
-        Order order = orderRepository.getOrderByIdMin(orderId);
+        Order order = orderRepository.getOrderByIdAndMinify(orderId);
 
         if(order == null) throw new Exception("500: Order does not exist");
 
@@ -81,7 +80,7 @@ public class OrderController {
      */
     @GetMapping("/order/{orderId}/line-item/all")
     private List<LineItem> getLineItemsByOrderId(@PathVariable Integer orderId) {
-        List<LineItem> lineItems = lineItemRepository.getAllByOrderIdMin(orderId);
+        List<LineItem> lineItems = lineItemRepository.getAllByOrderIdAndMinify(orderId);
 
         if(lineItems == null) return new ArrayList<>();
 
@@ -118,12 +117,12 @@ public class OrderController {
             order = new Order();
 
             // find parent Shop to verify it exists
-            Shop shop = shopRepository.getShopByIdMin(shopId);
+            Shop shop = shopRepository.getShopByIdAndMinify(shopId);
             if(shop == null) throw new Exception("500: Shop by this id does not exist");
             order.setShopId(shopId);
 
         } else {
-            order = orderRepository.getOrderByIdMin(id);
+            order = orderRepository.getOrderByIdAndMinify(id);
         }
 
         if(order == null) throw new Exception("500: Order by this id does not exist");

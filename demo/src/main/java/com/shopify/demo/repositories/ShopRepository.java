@@ -10,15 +10,15 @@ public interface ShopRepository {
 
     Shop getShopById(Integer shopId);
 
-    Shop getShopByIdMin(Integer shopId);
+    Shop getShopByIdAndMinify(Integer shopId);
 
     void deleteShopById(Integer shopId);
 
     List<Shop> findAll();
 
-    List<Shop> getAllMin();
+    List<Shop> getAllAndMinify();
 
     List<Shop> getAllByVendor(Integer vendorId);
 
-    List<Shop> getAllMinByVendor(Integer vendorId);
+    List<Shop> getAllAndMinifyByVendor(Integer vendorId);
 }

@@ -8,17 +8,17 @@ public interface LineItemRepository {
 
     LineItem getLineItemById(Integer lineItemId);
 
-    LineItem getLineItemByIdMin(Integer lineItemId);
+    LineItem getLineItemByIdAndMinify(Integer lineItemId);
 
     void saveLineItem(LineItem lineItem);
 
     List<LineItem> getAllByOrderId(Integer orderId);
 
-    List<LineItem> getAllByOrderIdMin(Integer orderId);
+    List<LineItem> getAllByOrderIdAndMinify(Integer orderId);
 
     void deleteLineItemById(Integer lineItemId);
 
     List<LineItem> getAllByProductId(Integer productId);
 
-    List<LineItem> getAllByProductIdMin(Integer productId);
+    List<LineItem> getAllByProductIdAndMinify(Integer productId);
 }

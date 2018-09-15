@@ -20,10 +20,15 @@ public class LineItemRepositoryImpl implements LineItemRepository{
     }
 
     @Override
-    public LineItem getLineItemByIdMin(Integer lineItemId) {
+    public LineItem getLineItemByIdAndMinify(Integer lineItemId) {
         return minify(getLineItemById(lineItemId));
     }
 
+    /**
+     * minify: reduces size of Line Item object to reduce fetch load; prevents fetching for parent and children objects
+     * @param lineItem
+     * @return minified Line Item
+     */
     LineItem minify(LineItem lineItem) {
         if(lineItem != null) {
             lineItem.setProduct(null);
@@ -45,9 +50,10 @@ public class LineItemRepositoryImpl implements LineItemRepository{
     }
 
     @Override
-    public List<LineItem> getAllByOrderIdMin(Integer orderId) {
+    public List<LineItem> getAllByOrderIdAndMinify(Integer orderId) {
         List<LineItem> lineItems = getAllByOrderId(orderId);
 
+        // minify each Line Item
         if(lineItems != null) {
             for(LineItem lineItem : lineItems) {
                 minify(lineItem);
@@ -68,7 +74,7 @@ public class LineItemRepositoryImpl implements LineItemRepository{
     }
 
     @Override
-    public List<LineItem> getAllByProductIdMin(Integer productId) {
+    public List<LineItem> getAllByProductIdAndMinify(Integer productId) {
         List<LineItem> lineItems = getAllByProductId(productId);
 
         if(lineItems != null) {

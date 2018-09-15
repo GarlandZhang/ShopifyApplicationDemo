@@ -7,7 +7,7 @@ import java.util.List;
 public interface ProductRepository {
     Product getProductById(Integer id);
 
-    Product getProductByIdMin(Integer id);
+    Product getProductByIdAndMinify(Integer id);
 
     void save(Product prod);
 
@@ -15,13 +15,13 @@ public interface ProductRepository {
 
     List<Product> getAll();
 
-    List<Product> getAllMin();
+    List<Product> getAllAndMinify();
 
     List<Product> getAllByShopId(Integer shopId);
 
-    List<Product> getAllByShopIdMin(Integer shopId);
+    List<Product> getAllByShopIdAndMinify(Integer shopId);
 
     Product getProductByLineItemId(Integer lineItemId);
 
-    Product getProductByLineItemIdMin(Integer lineItemId);
+    Product getProductByLineItemIdAndMinify(Integer lineItemId);
 }

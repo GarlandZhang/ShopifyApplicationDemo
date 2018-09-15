@@ -26,8 +26,8 @@ public class ShopRepositoryImpl implements ShopRepository{
     }
 
     @Override
-    public Shop getShopByIdMin(Integer shopId) {
-        return minififyShop(getShopById(shopId));
+    public Shop getShopByIdAndMinify(Integer shopId) {
+        return minifify(getShopById(shopId));
     }
 
     @Override
@@ -41,22 +41,22 @@ public class ShopRepositoryImpl implements ShopRepository{
     }
 
     @Override
-    public List<Shop> getAllMin() {
+    public List<Shop> getAllAndMinify() {
         List<Shop> shops =  findAll();
 
         for(Shop shop: shops) {
-            minififyShop(shop);
+            minifify(shop);
         }
 
         return shops;
     }
 
     @Override
-    public List<Shop> getAllMinByVendor(Integer vendorId) {
+    public List<Shop> getAllAndMinifyByVendor(Integer vendorId) {
         List<Shop> shops = getAllByVendor(vendorId);
 
         for(Shop shop: shops) {
-            minififyShop(shop);
+            minifify(shop);
         }
 
         return shops;
@@ -67,7 +67,12 @@ public class ShopRepositoryImpl implements ShopRepository{
         return shopJPARepository.findAllByVendorId(vendorId);
     }
 
-    private Shop minififyShop(Shop shop) {
+    /**
+     * minify: reduces size of Shop object to reduce fetch load; prevents fetching for parent and children objects
+     * @param shop
+     * @return minified Shop
+     */
+    private Shop minifify(Shop shop) {
         if(shop != null) {
             shop.setProducts(new ArrayList<>());
             shop.setOrders(new ArrayList<>());

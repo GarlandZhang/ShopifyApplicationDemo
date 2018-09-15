@@ -1,6 +1,5 @@
 package com.shopify.demo.repositories;
 
-import com.shopify.demo.models.LineItem;
 import com.shopify.demo.models.Order;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +24,16 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Order getOrderByIdMin(Integer orderId) {
-        return minifyOrder(getOrderById(orderId));
+    public Order getOrderByIdAndMinify(Integer orderId) {
+        return minify(getOrderById(orderId));
     }
 
-    Order minifyOrder(Order order) {
+    /**
+     * minify: reduces size of Order object to reduce fetch load; prevents fetching for parent and children objects
+     * @param order
+     * @return minified Order
+     */
+    Order minify(Order order) {
         if(order != null) {
 //            order.setCustomer(null);
             order.setShop(null);
@@ -46,12 +50,12 @@ public class OrderRepositoryImpl implements OrderRepository {
 
 
     @Override
-    public List<Order> getAllOrdersMin() {
+    public List<Order> getAllOrdersAndMinify() {
         List<Order> orders = getAllOrders();
 
         if(orders != null) {
             for(Order order: orders) {
-                minifyOrder(order);
+                minify(order);
             }
         }
 
@@ -64,12 +68,13 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public List<Order> getAllByShopIdMin(Integer shopId) {
+    public List<Order> getAllByShopIdAndMinify(Integer shopId) {
         List<Order> orders = getAllByShopId(shopId);
 
+        // minify each Order object
         if(orders != null){
             for(Order order: orders) {
-                minifyOrder(order);
+                minify(order);
             }
         }
 
@@ -83,8 +88,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Order getOrderByLineItemIdMin(Integer lineItemId) {
-        return minifyOrder(getOrderByLineItemId(lineItemId));
+    public Order getOrderByLineItemIdAndMinify(Integer lineItemId) {
+        return minify(getOrderByLineItemId(lineItemId));
     }
 
     @Override

@@ -8,11 +8,9 @@ import com.shopify.demo.repositories.ProductRepository;
 import com.shopify.demo.repositories.ShopRepository;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +56,7 @@ public class ShopController {
     @GetMapping("/all")
     private List<Shop> getAllShops() {
 
-        List<Shop> shops = shopRepository.getAllMin();
+        List<Shop> shops = shopRepository.getAllAndMinify();
 
         if(shops == null) return new ArrayList<Shop>();
 
@@ -72,7 +70,7 @@ public class ShopController {
      */
     @GetMapping("/{shopId}/product/all")
     private List<Product> getAllProductInShop(@PathVariable Integer shopId) {
-        List<Product> productList = productRepository.getAllByShopIdMin(shopId);
+        List<Product> productList = productRepository.getAllByShopIdAndMinify(shopId);
 
         if(productList == null) return new ArrayList<>();
 
@@ -86,7 +84,7 @@ public class ShopController {
      */
     @GetMapping("/{shopId}/order/all")
     private List<Order> getAllOrderInShop(@PathVariable Integer shopId) {
-        List<Order> orderList = orderRepository.getAllByShopIdMin(shopId);
+        List<Order> orderList = orderRepository.getAllByShopIdAndMinify(shopId);
 
         if(orderList == null) return new ArrayList<>();
 
@@ -110,7 +108,7 @@ public class ShopController {
      */
     @GetMapping("/{shopId}")
     private Shop getShopById(@PathVariable Integer shopId) throws Exception {
-        Shop shop = shopRepository.getShopByIdMin(shopId);
+        Shop shop = shopRepository.getShopByIdAndMinify(shopId);
 
         if(shop == null) throw new Exception("500: No Shop exists by this id");
 
@@ -132,7 +130,7 @@ public class ShopController {
         if(createNewFlag) {
             shop = new Shop();
         } else {
-            shop = shopRepository.getShopByIdMin(id);
+            shop = shopRepository.getShopByIdAndMinify(id);
         }
 
         if(shop == null) throw new Exception("500: shop does not exist with this id");

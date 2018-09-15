@@ -8,21 +8,21 @@ public interface OrderRepository {
     
     Order getOrderById(Integer orderId);
     
-    Order getOrderByIdMin(Integer orderId);
+    Order getOrderByIdAndMinify(Integer orderId);
 
     void save(Order order);
     
     List<Order> getAllOrders();
 
-    List<Order> getAllOrdersMin();
+    List<Order> getAllOrdersAndMinify();
 
     List<Order> getAllByShopId(Integer shopId);
 
     void deleteOrderById(Integer orderId);
 
-    List<Order> getAllByShopIdMin(Integer shopId);
+    List<Order> getAllByShopIdAndMinify(Integer shopId);
 
     Order getOrderByLineItemId(Integer lineItemId);
 
-    Order getOrderByLineItemIdMin(Integer lineItemId);
+    Order getOrderByLineItemIdAndMinify(Integer lineItemId);
 }

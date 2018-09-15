@@ -50,7 +50,7 @@ public class ProductController {
      */
     @GetMapping("/product/all")
     private List<Product> getAllProduct() {
-        List<Product> productList = productRepository.getAllMin();
+        List<Product> productList = productRepository.getAllAndMinify();
 
         if(productList == null) return new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class ProductController {
      */
     @GetMapping("/product/{productId}/line-item/all")
     private List<LineItem> getLineItemsByProductId(@PathVariable Integer productId) {
-        List<LineItem> lineItems = lineItemRepository.getAllByProductIdMin(productId);
+        List<LineItem> lineItems = lineItemRepository.getAllByProductIdAndMinify(productId);
 
         if(lineItems == null) return new ArrayList<>();
 
@@ -79,7 +79,7 @@ public class ProductController {
      */
     @GetMapping("/product/{productId}")
     private Product getProductById(@PathVariable Integer productId) throws Exception {
-        Product product = productRepository.getProductByIdMin(productId);
+        Product product = productRepository.getProductByIdAndMinify(productId);
 
         if(product == null) throw new Exception("500: Product does not exist");
 
@@ -117,11 +117,11 @@ public class ProductController {
             prod = new Product();
 
             // set shopId
-            Shop shop = shopRepository.getShopByIdMin(shopId);
+            Shop shop = shopRepository.getShopByIdAndMinify(shopId);
             if(shop == null) throw new Exception("500: Shop by this id does not exist");
             prod.setShopId(shopId);
         } else {
-            prod = productRepository.getProductByIdMin(id);
+            prod = productRepository.getProductByIdAndMinify(id);
         }
 
         if(prod == null) throw new Exception("500: Product by this id does not exist");

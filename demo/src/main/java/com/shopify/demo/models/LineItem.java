@@ -19,7 +19,7 @@ public class LineItem {
     Integer lineItemId;
     Integer productId;
     Integer orderId;
-    String properties;
+    String properties; // description or specifications about Line Item; this was optionally implemented
     Integer quantity;
     Float price;
     Float discount;
@@ -33,6 +33,7 @@ public class LineItem {
     Product product;
 
     public LineItem() {
+        // initialize default values
         properties = "";
         quantity = 0;
         price = (float)0;

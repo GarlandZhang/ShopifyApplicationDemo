@@ -82,7 +82,7 @@ public class LineItemController {
             lineItem = new LineItem();
 
             // fetch product; set price and product id of parent product
-            Product product = productRepository.getProductByIdMin(updateLineItem.getProductId());
+            Product product = productRepository.getProductByIdAndMinify(updateLineItem.getProductId());
             if(product == null) throw new Exception("500: Product with this id does not exist");
             lineItem.setProductId(updateLineItem.getProductId());
             lineItem.setPrice(product.getPrice());
@@ -93,7 +93,7 @@ public class LineItemController {
             lineItem.setOrderId(orderId);
         } else{
             // fetch line item
-            lineItem = lineItemRepository.getLineItemByIdMin(lineItemId);
+            lineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
             if(lineItem == null) throw new Exception("500: Line Item does not exist");
 
             // fetch order
@@ -127,7 +127,7 @@ public class LineItemController {
 
     @GetMapping("/line-item/{lineItemId}")
     private LineItem getLineItemById(@PathVariable Integer lineItemId) throws Exception {
-        LineItem lineItem = lineItemRepository.getLineItemByIdMin(lineItemId);
+        LineItem lineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
 
         if(lineItem == null) throw new Exception("500: Line Item with this id does not exist");
 
@@ -142,7 +142,7 @@ public class LineItemController {
      */
     @GetMapping("/line-item/{lineItemId}/product")
     private Product getProductWithLineItemId(@PathVariable Integer lineItemId) throws Exception {
-        Product product = productRepository.getProductByLineItemIdMin(lineItemId);
+        Product product = productRepository.getProductByLineItemIdAndMinify(lineItemId);
 
         if(product == null) throw new Exception("500: Line Item does not belong to a product");
 
@@ -157,7 +157,7 @@ public class LineItemController {
      */
     @GetMapping("/line-item/{lineItemId}/order")
     private Order getOrderWithLineItemId(@PathVariable Integer lineItemId) throws Exception {
-        Order order = orderRepository.getOrderByLineItemIdMin(lineItemId);
+        Order order = orderRepository.getOrderByLineItemIdAndMinify(lineItemId);
 
         if(order == null) throw new Exception("500: Line Item does not belong to an order");
 
@@ -174,7 +174,7 @@ public class LineItemController {
     @PutMapping("/line-item/{lineItemId}")
     private LineItem updateLineItemId(@RequestBody LineItem lineItem, @PathVariable Integer lineItemId) throws Exception {
 
-        LineItem existingLineItem = lineItemRepository.getLineItemByIdMin(lineItemId);
+        LineItem existingLineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
         if(existingLineItem == null) throw new Exception("500");
 
         if(invalidLineItem(lineItem)) throw new Exception("500: Invalid input");
@@ -191,10 +191,10 @@ public class LineItemController {
     @DeleteMapping("/line-item/{lineItemId}")
     private String deleteLineItemId(@PathVariable Integer lineItemId) throws Exception {
 
-        LineItem lineItem = lineItemRepository.getLineItemByIdMin(lineItemId);
+        LineItem lineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
         if(lineItem == null) throw new Exception("Line Item does not exist with this id");
 
-        Order order = orderRepository.getOrderByLineItemIdMin(lineItemId);
+        Order order = orderRepository.getOrderByLineItemIdAndMinify(lineItemId);
         if(order == null) throw new Exception("Order does not exist for this line item");
 
         // set new total

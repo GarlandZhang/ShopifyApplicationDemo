@@ -27,11 +27,16 @@ public class ProductRepositoryImpl implements ProductRepository{
     }
 
     @Override
-    public Product getProductByIdMin(Integer id) {
-       return minifyProduct(getProductById(id));
+    public Product getProductByIdAndMinify(Integer id) {
+       return minify(getProductById(id));
     }
 
-    private Product minifyProduct(Product productById) {
+    /**
+     * minify: reduces size of Product object to reduce fetch load; prevents fetching for parent and children objects
+     * @param productById
+     * @return minified Product
+     */
+    private Product minify(Product productById) {
         if(productById != null){
             productById.setShop(null);
             productById.setLineItems(new ArrayList<>());
@@ -56,12 +61,12 @@ public class ProductRepositoryImpl implements ProductRepository{
     }
 
     @Override
-    public List<Product> getAllMin() {
+    public List<Product> getAllAndMinify() {
         List<Product> products = getAll();
 
         if(products != null) {
             for(Product product : products) {
-                minifyProduct(product);
+                minify(product);
             }
         }
 
@@ -74,12 +79,12 @@ public class ProductRepositoryImpl implements ProductRepository{
     }
 
     @Override
-    public List<Product> getAllByShopIdMin(Integer shopId) {
+    public List<Product> getAllByShopIdAndMinify(Integer shopId) {
         List<Product> products = getAllByShopId(shopId);
 
         if(products != null) {
             for(Product product : products) {
-                minifyProduct(product);
+                minify(product);
             }
         }
 
@@ -92,7 +97,7 @@ public class ProductRepositoryImpl implements ProductRepository{
     }
 
     @Override
-    public Product getProductByLineItemIdMin(Integer lineItemId) {
-        return minifyProduct(getProductByLineItemId(lineItemId));
+    public Product getProductByLineItemIdAndMinify(Integer lineItemId) {
+        return minify(getProductByLineItemId(lineItemId));
     }
 }

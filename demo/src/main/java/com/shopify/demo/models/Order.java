@@ -44,6 +44,7 @@ public class Order {
     List<LineItem> lineItems;
 
     public Order() {
+        // initialize default values
         creationDate = new Date(Calendar.getInstance().getTimeInMillis());
         updateDate = new Date(Calendar.getInstance().getTimeInMillis());
         total = (float) 0;
