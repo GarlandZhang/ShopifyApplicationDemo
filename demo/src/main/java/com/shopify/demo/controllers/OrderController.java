@@ -9,6 +9,8 @@ import com.shopify.demo.repositories.ShopRepository;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
@@ -41,8 +43,16 @@ public class OrderController {
      * @throws Exception
      */
     @PostMapping("/shop/{shopId}/order/create")
-    private Order createOrder(@RequestBody Order newOrder, @PathVariable Integer shopId) throws Exception {
-        return updateOrderWithFlag(newOrder, -1, true, shopId);
+    private ResponseEntity<Order> createOrder(@RequestBody Order newOrder, @PathVariable Integer shopId) throws Exception {
+        Order order = updateOrderWithFlag(newOrder, -1, true, shopId);
+
+        if(order == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Create unsuccessful")
+                .body(null);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Create successful")
+                .body(order);
     }
 
     /**
@@ -50,12 +60,16 @@ public class OrderController {
      * @return all active Orders
      */
     @GetMapping("/order/all")
-    private List<Order> getOrders() {
+    private ResponseEntity<List<Order>> getOrders() {
         List<Order> orders = orderRepository.getAllOrdersAndMinify();
 
-        if(orders == null) return new ArrayList<>();
+        if(orders == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ArrayList<>());
 
-        return orders;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(orders);
     }
 
     /**
@@ -65,12 +79,16 @@ public class OrderController {
      * @throws Exception
      */
     @GetMapping("/order/{orderId}")
-    private Order getOrder(@PathVariable Integer orderId) throws Exception {
+    private ResponseEntity<Order> getOrder(@PathVariable Integer orderId) throws Exception {
         Order order = orderRepository.getOrderByIdAndMinify(orderId);
 
-        if(order == null) throw new Exception("500: Order does not exist");
+        if(order == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Order does not exist")
+                .body(null);
 
-        return order;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(order);
     }
 
     /**
@@ -79,12 +97,16 @@ public class OrderController {
      * @return list of all List Items
      */
     @GetMapping("/order/{orderId}/line-item/all")
-    private List<LineItem> getLineItemsByOrderId(@PathVariable Integer orderId) {
+    private ResponseEntity<List<LineItem>> getLineItemsByOrderId(@PathVariable Integer orderId) {
         List<LineItem> lineItems = lineItemRepository.getAllByOrderIdAndMinify(orderId);
 
-        if(lineItems == null) return new ArrayList<>();
+        if(lineItems == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ArrayList<>());
 
-        return lineItems;
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(lineItems);
     }
 
     /**
@@ -95,8 +117,16 @@ public class OrderController {
      * @throws Exception
      */
     @PutMapping("/order/{orderId}")
-    private Order updateOrder(@RequestBody Order updatedOrder, @PathVariable Integer orderId) throws Exception {
-        return updateOrderWithFlag(updatedOrder, orderId, false, -1);
+    private ResponseEntity<Order> updateOrder(@RequestBody Order updatedOrder, @PathVariable Integer orderId) throws Exception {
+        Order order = updateOrderWithFlag(updatedOrder, orderId, false, -1);
+
+        if(order == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Shop or Order does not exist with input id")
+                .body(null);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(order);
     }
 
     /**
@@ -118,14 +148,14 @@ public class OrderController {
 
             // find parent Shop to verify it exists
             Shop shop = shopRepository.getShopByIdAndMinify(shopId);
-            if(shop == null) throw new Exception("500: Shop by this id does not exist");
+            if(shop == null) return null;
             order.setShopId(shopId);
 
         } else {
             order = orderRepository.getOrderByIdAndMinify(id);
         }
 
-        if(order == null) throw new Exception("500: Order by this id does not exist");
+        if(order == null) return null;
 
         // set new properties
         order.setUpdateDate(new Date(Calendar.getInstance().getTimeInMillis()));
@@ -140,9 +170,11 @@ public class OrderController {
      * @return message that Order successfully cancelled
      */
     @DeleteMapping("/order/{orderId}")
-    private String cancelOrder(@PathVariable Integer orderId) {
+    private ResponseEntity<String> cancelOrder(@PathVariable Integer orderId) {
         orderRepository.deleteOrderById(orderId);
 
-        return "200: Cancelled Order";
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Delete successful")
+                .body("Delete successful");
     }
 }

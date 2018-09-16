@@ -44,12 +44,12 @@ public class ProductController {
     private ResponseEntity<Product> createProduct(@RequestBody Product newProduct, @PathVariable Integer shopId) throws Exception{
         Product product = updateProductWithFlag(newProduct, -1,true, shopId);
 
-        if(product == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .header("Status", "500: Save unsuccessful")
+        if(product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Create unsuccessful")
                 .body(null);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Status", "200: Save successful")
+                .header("Status", "200: Create successful")
                 .body(product);
     }
 
@@ -99,8 +99,8 @@ public class ProductController {
     private ResponseEntity<Product> getProductById(@PathVariable Integer productId) throws Exception {
         Product product = productRepository.getProductByIdAndMinify(productId);
 
-        if(product == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .header("Status", "500: No Product exists with this id: " + productId)
+        if(product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: No Product exists with this id: " + productId)
                 .body(null);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -120,8 +120,8 @@ public class ProductController {
                                   @PathVariable Integer productId) throws Exception {
         Product product = updateProductWithFlag(updatedProduct, productId, false, -1);
 
-        if(product == null) return ResponseEntity.status(HttpStatus.OK)
-                .header("Status", "500: Shop or Product Id does not exist")
+        if(product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Shop or Product Id does not exist")
                 .body(null);
 
         return ResponseEntity.status(HttpStatus.OK)

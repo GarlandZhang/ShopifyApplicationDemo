@@ -45,12 +45,12 @@ public class ShopController {
 
         Shop savedShop = updateShopByIdWithFlag(newShop, -1, true);
 
-        if(savedShop == null) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .header("Status", "500: Save unsuccessful")
+        if(savedShop == null) ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Create unsuccessful")
                 .body(null);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Status", "200: Save successful")
+                .header("Status", "200: Create successful")
                 .body(savedShop);
     }
 
@@ -64,7 +64,7 @@ public class ShopController {
 
         List<Shop> shops = shopRepository.getAllAndMinify();
 
-        if(shops == null) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        if(shops == null) ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "200: Success")
                 .body(new ArrayList<>());
 
@@ -78,7 +78,7 @@ public class ShopController {
         List<Shop> shops = shopRepository.getAllAndMinify();
 
         if(Math.random() * 2 > 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .header("Status", "500: No shops")
+                                    .header("Status", "400: No shops")
                                     .body(new ArrayList<>());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -141,8 +141,8 @@ public class ShopController {
     private ResponseEntity<Shop> getShopById(@PathVariable Integer shopId) throws Exception {
         Shop shop = shopRepository.getShopByIdAndMinify(shopId);
 
-        if(shop == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .header("Status", "500: No Shop exists with id: " + shopId)
+        if(shop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: No Shop exists with id: " + shopId)
                 .body(null);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -191,8 +191,8 @@ public class ShopController {
     private ResponseEntity<Shop> updateShopById(@RequestBody Shop updatedShop, @PathVariable Integer shopId) throws Exception {
         Shop shop = updateShopByIdWithFlag(updatedShop, shopId, false);
 
-        if(shop == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .header("Status", "500: Shop does not exist with id: " + shopId)
+        if(shop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Shop does not exist with id: " + shopId)
                 .body(null);
 
         return ResponseEntity.status(HttpStatus.OK)
