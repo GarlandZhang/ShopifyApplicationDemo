@@ -73,19 +73,6 @@ public class ShopController {
                 .body(shops);
     }
 
-    @GetMapping("/test")
-    private ResponseEntity<List<Shop>> getShops(){
-        List<Shop> shops = shopRepository.getAllAndMinify();
-
-        if(Math.random() * 2 > 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .header("Status", "400: No shops")
-                                    .body(new ArrayList<>());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .header("Status", "200: Success")
-                .body(shops);
-    }
-
     /**
      * getAllProductInShop: get all Products belonging to this Shop with id, shopId
      * @param shopId
