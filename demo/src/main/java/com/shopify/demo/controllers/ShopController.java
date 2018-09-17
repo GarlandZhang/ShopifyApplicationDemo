@@ -110,14 +110,14 @@ public class ShopController {
     }
 
 /*    //TODO: belongs in vendor controller but leave here for now
-    @GetMapping("/vendor/{vendorId}")
-    private List<Shop> getAllShopsByVendor(@PathVariable Integer vendorId) {
-        List<Shop> shops = shopRepository.getAllMinByVendor(vendorId);
+     @GetMapping("/vendor/{vendorId}")
+     private List<Shop> getAllShopsByVendor(@PathVariable Integer vendorId) {
+     List<Shop> shops = shopRepository.getAllMinByVendor(vendorId);
 
-        if(shops == null) return new ArrayList<Shop>();
+     if(shops == null) return new ArrayList<Shop>();
 
-        return shops;
-    }*/
+     return shops;
+     }*/
 
     /**
      * getShopById: gets Shop with id, shopId
@@ -195,10 +195,18 @@ public class ShopController {
      */
     @DeleteMapping("/{shopId}")
     private ResponseEntity<String> deleteShopById(@PathVariable Integer shopId) throws Exception {
-        shopRepository.deleteShopById(shopId);
+
+        try{
+            shopRepository.deleteShopById(shopId);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Status", "500: Delete unsuccessful")
+                    .body("Delete unsuccessful");
+        }
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Deletion successful")
-                .body("Delete sueccessful");
+                .body("Delete successful");
     }
 
 }

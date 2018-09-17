@@ -243,7 +243,14 @@ public class LineItemController {
         order.setTotal(order.getTotal() - calcTotalLineItem(lineItem));
         orderRepository.save(order);
 
-        lineItemRepository.deleteLineItemById(lineItemId);
+        try{
+            lineItemRepository.deleteLineItemById(lineItemId);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Status", "500: Delete unsuccessful")
+                    .body("Delete unsuccessful");
+        }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Delete successful")

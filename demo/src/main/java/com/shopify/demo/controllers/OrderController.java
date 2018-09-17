@@ -171,7 +171,15 @@ public class OrderController {
      */
     @DeleteMapping("/order/{orderId}")
     private ResponseEntity<String> cancelOrder(@PathVariable Integer orderId) {
-        orderRepository.deleteOrderById(orderId);
+
+        try{
+            orderRepository.deleteOrderById(orderId);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Status", "500: Delete unsuccessful")
+                    .body("Delete unsuccessful");
+        }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Delete successful")

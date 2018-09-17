@@ -174,7 +174,14 @@ public class ProductController {
      */
     @DeleteMapping("/product/{productId}")
     private ResponseEntity<String> deleteProduct(@PathVariable Integer productId) {
-        productRepository.deleteProductById(productId);
+        try{
+            productRepository.deleteProductById(productId);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Status", "500: Delete unsuccessful")
+                    .body("Delete unsuccessful");
+        }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Delete successful")

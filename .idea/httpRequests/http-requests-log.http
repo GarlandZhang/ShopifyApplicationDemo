@@ -1,3 +1,13 @@
+POST http://localhost:8080/shop/create?name=TheHouseOfCards&vendorId=123&description=A store for selling standard playing cards with special designs&shopId=1
+Accept: */*
+Cache-Control: no-cache
+
+{     "name": "TheHouseOfCardzzz",     "vendorId": 123,     "description": "A store for selling standard cards", }
+
+<> 2018-09-13T092914.415.json
+
+###
+
 GET http://localhost:8080/shop/get/id?name=TheHouseOfCards&vendorId=123&description=A store for selling standard playing cards with special designs&shopId=1
 Accept: */*
 Cache-Control: no-cache

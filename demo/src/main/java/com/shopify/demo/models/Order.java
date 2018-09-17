@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name="`Order`" , schema="dbo")
+@Table(name="`Order`")
 public class Order {
 
     @Id
