@@ -16,6 +16,7 @@ public class ProductOutput {
 
     Integer productId;
     String description;
+    String name;
     Float price;
     Integer shopId;
     List<Integer> lineItems;
@@ -23,6 +24,7 @@ public class ProductOutput {
     public ProductOutput(){
         productId = 0;
         description = "";
+        name = "";
         price = (float) 0;
         shopId = 0;
         lineItems = new ArrayList<>();
@@ -32,6 +34,7 @@ public class ProductOutput {
         this();
         productId = product.getProductId();
         description = product.getDescription();
+        name = product.getName();
         price = product.getPrice();
         shopId = product.getShopId();
 

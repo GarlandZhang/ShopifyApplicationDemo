@@ -13,6 +13,5 @@ public class LineItemInput {
     Integer productId;
     String properties;
     Integer quantity;
-    Float price;
     Float discount;
 }

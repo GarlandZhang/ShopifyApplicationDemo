@@ -3,9 +3,7 @@ package com.shopify.demo.controllers;
 import com.shopify.demo.models.LineItem;
 import com.shopify.demo.models.Order;
 import com.shopify.demo.models.Product;
-import com.shopify.demo.models.iomodels.Message;
-import com.shopify.demo.models.iomodels.OrderHeavyOutput;
-import com.shopify.demo.models.iomodels.ProductHeavyOutput;
+import com.shopify.demo.models.iomodels.*;
 import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ProductRepository;
@@ -43,7 +41,7 @@ public class LineItemController {
      * @return the newly created LineItem
      */
     @PostMapping("/order/{orderId}/line-item/create")
-    private ResponseEntity<LineItem> addLineItemToOrder(@RequestBody LineItem lineItem, @PathVariable Integer orderId) throws Exception {
+    private ResponseEntity<LineItemOutput> addLineItemToOrder(@RequestBody LineItemInput lineItem, @PathVariable Integer orderId) throws Exception {
 
         // check if properties defined in lineItem are valid
         if(invalidLineItem(lineItem)) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -51,7 +49,7 @@ public class LineItemController {
                 .body(null);
 
         // return a newly created line item
-        lineItem = updateLineItemByIdWithFlag(lineItem, -1, orderId, true);
+        LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, orderId, true);
         
         if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "500: Create unsuccessful")
@@ -59,7 +57,7 @@ public class LineItemController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Create successful")
-                .body(lineItem);
+                .body(new LineItemOutput(newLineItem));
     }
 
     /**
@@ -67,7 +65,7 @@ public class LineItemController {
      * @param lineItem
      * @return true if invalid in any way
      */
-    private boolean invalidLineItem(LineItem lineItem) {
+    private boolean invalidLineItem(LineItemInput lineItem) {
         return lineItem == null
                 || lineItem.getProductId() == null
                 || (lineItem.getDiscount() != null && (lineItem.getDiscount() < 0 || lineItem.getDiscount() > 1))
@@ -86,10 +84,10 @@ public class LineItemController {
      * @return the newly generated or updated Line Item
      * @throws Exception
      */
-    private LineItem updateLineItemByIdWithFlag(@RequestBody LineItem updateLineItem,
-                                                Integer lineItemId ,
-                                                Integer orderId,
-                                                boolean createNewFlag) throws Exception {
+    private LineItem updateLineItemByIdWithFlag(@RequestBody LineItemInput updateLineItem,
+                                                      Integer lineItemId ,
+                                                      Integer orderId,
+                                                      boolean createNewFlag) throws Exception {
 
         LineItem lineItem = null;
         Order order = null;
@@ -143,7 +141,7 @@ public class LineItemController {
     }
 
     @GetMapping("/line-item/{lineItemId}")
-    private ResponseEntity<LineItem> getLineItemById(@PathVariable Integer lineItemId) throws Exception {
+    private ResponseEntity<LineItemOutput> getLineItemById(@PathVariable Integer lineItemId) throws Exception {
         LineItem lineItem = lineItemRepository.getLineItemById(lineItemId);
 
         if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -152,7 +150,7 @@ public class LineItemController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(lineItem);
+                .body(new LineItemOutput(lineItem));
     }
 
     /**
@@ -201,7 +199,7 @@ public class LineItemController {
      * @throws Exception
      */
     @PutMapping("/line-item/{lineItemId}")
-    private ResponseEntity<LineItem> updateLineItemId(@RequestBody LineItem lineItem, @PathVariable Integer lineItemId) throws Exception {
+    private ResponseEntity<LineItemOutput> updateLineItemId(@RequestBody LineItemInput lineItem, @PathVariable Integer lineItemId) throws Exception {
 
         LineItem existingLineItem = lineItemRepository.getLineItemById(lineItemId);
         if(existingLineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -212,7 +210,7 @@ public class LineItemController {
                 .header("Status", "400: Invalid arguments passed")
                 .body(null);
 
-        lineItem = updateLineItemByIdWithFlag(lineItem, lineItemId, -1, false);
+        LineItem updatedLineItem = updateLineItemByIdWithFlag(lineItem, lineItemId, -1, false);
         
         if(lineItem == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header("Status", "500: Update unsuccessful")
@@ -220,7 +218,7 @@ public class LineItemController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(lineItem);
+                .body(new LineItemOutput(updatedLineItem));
     }
 
     /**

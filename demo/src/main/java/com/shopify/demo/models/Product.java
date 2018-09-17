@@ -27,7 +27,7 @@ public class Product {
     @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<LineItem> lineItems;
 
 }
