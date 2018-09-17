@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
 import static lombok.AccessLevel.PRIVATE;
@@ -138,6 +139,24 @@ public class LineItemController {
      */
     Float calcTotalLineItem(LineItem lineItem) {
         return lineItem.getPrice() * lineItem.getQuantity() * (1-lineItem.getDiscount());
+    }
+
+    /**
+     * getLineItems: gets all Line Items
+     * *note: Use case would be for ADMIN only.
+     * @return list of all List Items
+     */
+    @GetMapping("/line-item/all")
+    private ResponseEntity<LineItemListWrapper> getLineItems() {
+        List<LineItem> lineItems = lineItemRepository.getAll();
+
+        if(lineItems == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new LineItemListWrapper());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new LineItemListWrapper(lineItems));
     }
 
     @GetMapping("/line-item/{lineItemId}")

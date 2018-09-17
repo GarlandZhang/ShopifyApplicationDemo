@@ -21,4 +21,6 @@ public interface LineItemRepository {
     List<LineItem> getAllByProductId(Integer productId);
 
     List<LineItem> getAllByProductIdAndMinify(Integer productId);
+
+    List<LineItem> getAll();
 }

@@ -85,4 +85,9 @@ public class LineItemRepositoryImpl implements LineItemRepository{
 
         return lineItems;
     }
+
+    @Override
+    public List<LineItem> getAll() {
+        return lineItemJPARepository.findAll();
+    }
 }
