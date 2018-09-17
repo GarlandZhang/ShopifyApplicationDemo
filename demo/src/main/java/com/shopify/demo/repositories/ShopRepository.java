@@ -14,7 +14,7 @@ public interface ShopRepository {
 
     void deleteShopById(Integer shopId);
 
-    List<Shop> findAll();
+    List<Shop> getAll();
 
     List<Shop> getAllAndMinify();
 

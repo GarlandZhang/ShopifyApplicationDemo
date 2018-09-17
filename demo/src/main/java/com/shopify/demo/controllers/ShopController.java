@@ -3,6 +3,7 @@ package com.shopify.demo.controllers;
 import com.shopify.demo.models.Order;
 import com.shopify.demo.models.Product;
 import com.shopify.demo.models.Shop;
+import com.shopify.demo.models.iomodels.*;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ProductRepository;
 import com.shopify.demo.repositories.ShopRepository;
@@ -41,7 +42,7 @@ public class ShopController {
      * @throws Exception
      */
     @PostMapping("/create")
-    private ResponseEntity<Shop> createNew(@RequestBody Shop newShop) throws Exception {
+    private ResponseEntity<ShopOutput> createNew(@RequestBody ShopInput newShop) throws Exception {
 
         Shop savedShop = updateShopByIdWithFlag(newShop, -1, true);
 
@@ -51,7 +52,7 @@ public class ShopController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Create successful")
-                .body(savedShop);
+                .body(new ShopOutput(savedShop));
     }
 
     /**
@@ -60,17 +61,56 @@ public class ShopController {
      * @return list of all Shops
      */
     @GetMapping("/all")
-    private ResponseEntity<List<Shop>> getAllShops() {
+    private ResponseEntity<ShopListHeavyWrapper> getAllShops() {
 
-        List<Shop> shops = shopRepository.getAllAndMinify();
+        List<Shop> shops = shopRepository.getAll();
 
-        if(shops == null) ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        if(shops == null) ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
                 .body(new ArrayList<>());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(shops);
+                .body(new ShopListHeavyWrapper(shops));
+    }
+
+    /**
+     * getAllShops: returns all Shops in database with reduced size.
+     * Use case: Users that want to see all available Shops
+     * @return list of all Shops
+     */
+    @GetMapping("/all/min")
+    private ResponseEntity<ShopListWrapper> getAllShopsMin() {
+
+        List<Shop> shops = shopRepository.getAll();
+
+        if(shops == null) ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ArrayList<>());
+
+        ShopListWrapper shopListWrapper = new ShopListWrapper(shops);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ShopListWrapper(shops));
+    }
+
+    /**
+     * getAllProductInShop: get all minimized Products belonging to this Shop with id, shopId
+     * @param shopId
+     * @return list of all the Shop's Products
+     */
+    @GetMapping("/{shopId}/product/all/min")
+    private ResponseEntity<ProductListWrapper> getAllProductInShopMin(@PathVariable Integer shopId) {
+        List<Product> productList = productRepository.getAllByShopId(shopId);
+
+        if(productList == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ProductListWrapper());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ProductListWrapper(productList));
     }
 
     /**
@@ -79,16 +119,34 @@ public class ShopController {
      * @return list of all the Shop's Products
      */
     @GetMapping("/{shopId}/product/all")
-    private ResponseEntity<List<Product>> getAllProductInShop(@PathVariable Integer shopId) {
-        List<Product> productList = productRepository.getAllByShopIdAndMinify(shopId);
+    private ResponseEntity<ProductListHeavyWrapper> getAllProductInShop(@PathVariable Integer shopId) {
+        List<Product> productList = productRepository.getAllByShopId(shopId);
 
         if(productList == null) return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(new ArrayList<>());
+                .body(new ProductListHeavyWrapper());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(productList);
+                .body(new ProductListHeavyWrapper(productList));
+    }
+
+    /**
+     * getAllOrderInShopMin: gets all minimized Orders belonging to this Shop with id, shopId
+     * @param shopId
+     * @return list of all Shop's Orders
+     */
+    @GetMapping("/{shopId}/order/all/min")
+    private ResponseEntity<OrderListWrapper> getAllOrderInShopMin(@PathVariable Integer shopId) {
+        List<Order> orderList = orderRepository.getAllByShopId(shopId);
+
+        if(orderList == null) return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new OrderListWrapper());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new OrderListWrapper(orderList));
     }
 
     /**
@@ -97,36 +155,36 @@ public class ShopController {
      * @return list of all Shop's Orders
      */
     @GetMapping("/{shopId}/order/all")
-    private ResponseEntity<List<Order>> getAllOrderInShop(@PathVariable Integer shopId) {
-        List<Order> orderList = orderRepository.getAllByShopIdAndMinify(shopId);
+    private ResponseEntity<OrderListHeavyWrapper> getAllOrderInShop(@PathVariable Integer shopId) {
+        List<Order> orderList = orderRepository.getAllByShopId(shopId);
 
         if(orderList == null) return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(new ArrayList<>());
+                .body(new OrderListHeavyWrapper());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(orderList);
+                .body(new OrderListHeavyWrapper(orderList));
     }
 
 /*    //TODO: belongs in vendor controller but leave here for now
      @GetMapping("/vendor/{vendorId}")
      private List<Shop> getAllShopsByVendor(@PathVariable Integer vendorId) {
-     List<Shop> shops = shopRepository.getAllMinByVendor(vendorId);
+     List<Shop> products = shopRepository.getAllMinByVendor(vendorId);
 
-     if(shops == null) return new ArrayList<Shop>();
+     if(products == null) return new ArrayList<Shop>();
 
-     return shops;
+     return products;
      }*/
 
     /**
-     * getShopById: gets Shop with id, shopId
+     * getShopByIdMin: gets minized Shop with id, shopId
      * @param shopId
      * @return the requested Shop
      */
-    @GetMapping("/{shopId}")
-    private ResponseEntity<Shop> getShopById(@PathVariable Integer shopId) throws Exception {
-        Shop shop = shopRepository.getShopByIdAndMinify(shopId);
+    @GetMapping("/{shopId}/min")
+    private ResponseEntity<ShopOutput> getShopByIdMin(@PathVariable Integer shopId) throws Exception {
+        Shop shop = shopRepository.getShopById(shopId);
 
         if(shop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: No Shop exists with id: " + shopId)
@@ -134,7 +192,25 @@ public class ShopController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(shop);
+                .body(new ShopOutput(shop));
+    }
+
+    /**
+     * getShopById: gets Shop with id, shopId
+     * @param shopId
+     * @return the requested Shop
+     */
+    @GetMapping("/{shopId}")
+    private ResponseEntity<ShopHeavyOutput> getShopById(@PathVariable Integer shopId) throws Exception {
+        Shop shop = shopRepository.getShopById(shopId);
+
+        if(shop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: No Shop exists with id: " + shopId)
+                .body(null);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(new ShopHeavyOutput(shop));
     }
 
     /**
@@ -146,13 +222,13 @@ public class ShopController {
      * @return the newly generated Shop or the updated existing Shop
      * @throws Exception
      */
-    private Shop updateShopByIdWithFlag(@RequestBody Shop updatedShop, Integer id, boolean createNewFlag) throws Exception {
+    private Shop updateShopByIdWithFlag(@RequestBody ShopInput updatedShop, Integer id, boolean createNewFlag) throws Exception {
         Shop shop = null;
 
         if(createNewFlag) {
             shop = new Shop();
         } else {
-            shop = shopRepository.getShopByIdAndMinify(id);
+            shop = shopRepository.getShopById(id);
         }
 
         if(shop == null) return null;
@@ -175,7 +251,7 @@ public class ShopController {
      * @throws Exception
      */
     @PutMapping("/{shopId}")
-    private ResponseEntity<Shop> updateShopById(@RequestBody Shop updatedShop, @PathVariable Integer shopId) throws Exception {
+    private ResponseEntity<ShopHeavyOutput> updateShopById(@RequestBody ShopInput updatedShop, @PathVariable Integer shopId) throws Exception {
         Shop shop = updateShopByIdWithFlag(updatedShop, shopId, false);
 
         if(shop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -184,7 +260,7 @@ public class ShopController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Update successful")
-                .body(shop);
+                .body(new ShopHeavyOutput(shop));
     }
 
     /**
@@ -194,7 +270,7 @@ public class ShopController {
      * @throws Exception
      */
     @DeleteMapping("/{shopId}")
-    private ResponseEntity<String> deleteShopById(@PathVariable Integer shopId) throws Exception {
+    private ResponseEntity<Message> deleteShopById(@PathVariable Integer shopId) throws Exception {
 
         try{
             shopRepository.deleteShopById(shopId);
@@ -202,11 +278,11 @@ public class ShopController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .header("Status", "500: Delete unsuccessful")
-                    .body("Delete unsuccessful");
+                    .body(new Message("Delete unsuccessful"));
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Deletion successful")
-                .body("Delete successful");
+                .body(new Message("Delete successful"));
     }
 
 }

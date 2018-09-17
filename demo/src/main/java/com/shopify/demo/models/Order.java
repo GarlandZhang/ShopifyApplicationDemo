@@ -30,7 +30,7 @@ public class Order {
     Date updateDate;
     Float total;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
 
@@ -40,7 +40,7 @@ public class Order {
     User customer;
 */
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<LineItem> lineItems;
 
     public Order() {

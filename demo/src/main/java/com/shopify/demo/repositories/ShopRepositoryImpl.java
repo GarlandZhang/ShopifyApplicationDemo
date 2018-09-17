@@ -36,13 +36,13 @@ public class ShopRepositoryImpl implements ShopRepository{
     }
 
     @Override
-    public List<Shop> findAll() {
+    public List<Shop> getAll() {
         return shopJPARepository.findAll();
     }
 
     @Override
     public List<Shop> getAllAndMinify() {
-        List<Shop> shops =  findAll();
+        List<Shop> shops =  getAll();
 
         for(Shop shop: shops) {
             minifify(shop);

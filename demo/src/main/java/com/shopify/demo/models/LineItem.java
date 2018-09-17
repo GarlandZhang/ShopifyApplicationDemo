@@ -24,11 +24,11 @@ public class LineItem {
     Float price;
     Float discount;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name="orderId", insertable = false, updatable = false)
     Order order;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name="productId", insertable = false, updatable = false)
     Product product;
 

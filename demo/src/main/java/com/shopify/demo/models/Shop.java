@@ -23,9 +23,9 @@ public class Shop {
     Integer vendorId;
     String description;
 
-    @OneToMany(mappedBy="shop", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="shop", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Order> orders;
 
-    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Product> products;
 }

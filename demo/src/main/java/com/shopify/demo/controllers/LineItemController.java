@@ -3,6 +3,9 @@ package com.shopify.demo.controllers;
 import com.shopify.demo.models.LineItem;
 import com.shopify.demo.models.Order;
 import com.shopify.demo.models.Product;
+import com.shopify.demo.models.iomodels.Message;
+import com.shopify.demo.models.iomodels.OrderHeavyOutput;
+import com.shopify.demo.models.iomodels.ProductHeavyOutput;
 import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ProductRepository;
@@ -96,7 +99,7 @@ public class LineItemController {
             lineItem = new LineItem();
 
             // fetch product; set price and product id of parent product
-            Product product = productRepository.getProductByIdAndMinify(updateLineItem.getProductId());
+            Product product = productRepository.getProductById(updateLineItem.getProductId());
             if(product == null) return null;
             lineItem.setProductId(updateLineItem.getProductId());
             lineItem.setPrice(product.getPrice());
@@ -107,7 +110,7 @@ public class LineItemController {
             lineItem.setOrderId(orderId);
         } else{
             // fetch line item
-            lineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
+            lineItem = lineItemRepository.getLineItemById(lineItemId);
             if(lineItem == null) return null;
 
             // fetch order
@@ -141,7 +144,7 @@ public class LineItemController {
 
     @GetMapping("/line-item/{lineItemId}")
     private ResponseEntity<LineItem> getLineItemById(@PathVariable Integer lineItemId) throws Exception {
-        LineItem lineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
+        LineItem lineItem = lineItemRepository.getLineItemById(lineItemId);
 
         if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Line Item does not exist with id: " + lineItemId)
@@ -159,8 +162,8 @@ public class LineItemController {
      * @throws Exception
      */
     @GetMapping("/line-item/{lineItemId}/product")
-    private ResponseEntity<Product> getProductWithLineItemId(@PathVariable Integer lineItemId) throws Exception {
-        Product product = productRepository.getProductByLineItemIdAndMinify(lineItemId);
+    private ResponseEntity<ProductHeavyOutput> getProductWithLineItemId(@PathVariable Integer lineItemId) throws Exception {
+        Product product = productRepository.getProductByLineItemId(lineItemId);
 
         if(product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Line Item does not exist with id: " + lineItemId)
@@ -168,7 +171,7 @@ public class LineItemController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(product);
+                .body(new ProductHeavyOutput(product));
     }
 
     /**
@@ -178,8 +181,8 @@ public class LineItemController {
      * @throws Exception
      */
     @GetMapping("/line-item/{lineItemId}/order")
-    private ResponseEntity<Order> getOrderWithLineItemId(@PathVariable Integer lineItemId) throws Exception {
-        Order order = orderRepository.getOrderByLineItemIdAndMinify(lineItemId);
+    private ResponseEntity<OrderHeavyOutput> getOrderWithLineItemId(@PathVariable Integer lineItemId) throws Exception {
+        Order order = orderRepository.getOrderByLineItemId(lineItemId);
 
         if(order == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Line Item does not exist with id: " + lineItemId)
@@ -187,7 +190,7 @@ public class LineItemController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(order);
+                .body(new OrderHeavyOutput(order));
     }
 
     /**
@@ -200,7 +203,7 @@ public class LineItemController {
     @PutMapping("/line-item/{lineItemId}")
     private ResponseEntity<LineItem> updateLineItemId(@RequestBody LineItem lineItem, @PathVariable Integer lineItemId) throws Exception {
 
-        LineItem existingLineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
+        LineItem existingLineItem = lineItemRepository.getLineItemById(lineItemId);
         if(existingLineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Line Item does not exist with id: " + lineItemId)
                 .body(null);
@@ -227,17 +230,17 @@ public class LineItemController {
      * @throws Exception
      */
     @DeleteMapping("/line-item/{lineItemId}")
-    private ResponseEntity<String> deleteLineItemId(@PathVariable Integer lineItemId) throws Exception {
+    private ResponseEntity<Message> deleteLineItemId(@PathVariable Integer lineItemId) throws Exception {
 
-        LineItem lineItem = lineItemRepository.getLineItemByIdAndMinify(lineItemId);
+        LineItem lineItem = lineItemRepository.getLineItemById(lineItemId);
         if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .header("Status", "400: Line Item does not exist with id: " + lineItem)
-                .body("");
+                .header("Status", "400: Line Item does not exist with id: " + lineItemId)
+                .body(new Message("Line Item does not exist with id:" + lineItemId));
 
-        Order order = orderRepository.getOrderByLineItemIdAndMinify(lineItemId);
+        Order order = orderRepository.getOrderByLineItemId(lineItemId);
         if(order == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header("Status", "500: Could not successfully retrieve Order")
-                .body("");
+                .body(new Message("Could not successfully retrieve Order with id :" + lineItemId));
 
         // set new total
         order.setTotal(order.getTotal() - calcTotalLineItem(lineItem));
@@ -249,12 +252,12 @@ public class LineItemController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .header("Status", "500: Delete unsuccessful")
-                    .body("Delete unsuccessful");
+                    .body(new Message("Delete unsuccessful"));
         }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Delete successful")
-                .body("Delete successful");
+                .body(new Message("Delete successful"));
     }
 
 }
