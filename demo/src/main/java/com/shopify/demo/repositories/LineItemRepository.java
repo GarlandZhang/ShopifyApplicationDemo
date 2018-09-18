@@ -10,7 +10,7 @@ public interface LineItemRepository {
 
     LineItem getLineItemByIdAndMinify(Integer lineItemId);
 
-    void saveLineItem(LineItem lineItem);
+    LineItem saveLineItem(LineItem lineItem);
 
     List<LineItem> getAllByOrderId(Integer orderId);
 

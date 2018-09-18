@@ -16,8 +16,8 @@ public class ShopRepositoryImpl implements ShopRepository{
     ShopJPARepository shopJPARepository;
 
     @Override
-    public void saveShop(Shop shop) {
-        shopJPARepository.save(shop);
+    public Shop saveShop(Shop shop) {
+        return shopJPARepository.save(shop);
     }
 
     @Override
@@ -60,6 +60,11 @@ public class ShopRepositoryImpl implements ShopRepository{
         }
 
         return shops;
+    }
+
+    @Override
+    public Shop getShopByName(String name) {
+        return shopJPARepository.findShopByName(name);
     }
 
     @Override

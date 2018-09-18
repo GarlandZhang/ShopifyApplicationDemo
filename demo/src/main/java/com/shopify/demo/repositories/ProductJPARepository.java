@@ -16,4 +16,6 @@ public interface ProductJPARepository extends JpaRepository<Product, Integer> {
 
     @Query(value = "SELECT p, l from Product, LineItem where (p.productId = l.productId AND l.lineItemId = :id)", nativeQuery = true)
     Product getProductByGivenLineItemId(@Param("id") Integer lineItemId);
+
+    Product findProductByName(String name);
 }

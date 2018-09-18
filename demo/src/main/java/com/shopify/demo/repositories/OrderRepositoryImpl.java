@@ -93,8 +93,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public void save(Order order) {
-        orderJPARepository.save(order);
+    public Order saveOrder(Order order) {
+        return orderJPARepository.save(order);
     }
 
     @Override

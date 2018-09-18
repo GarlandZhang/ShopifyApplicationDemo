@@ -10,7 +10,7 @@ public interface OrderRepository {
     
     Order getOrderByIdAndMinify(Integer orderId);
 
-    void save(Order order);
+    Order saveOrder(Order order);
     
     List<Order> getAllOrders();
 

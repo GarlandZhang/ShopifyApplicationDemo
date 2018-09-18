@@ -46,8 +46,8 @@ public class ProductRepositoryImpl implements ProductRepository{
     }
 
     @Override
-    public void save(Product prod) {
-        productJPARepository.save(prod);
+    public Product saveProduct(Product prod) {
+        return productJPARepository.save(prod);
     }
 
     @Override
@@ -99,5 +99,10 @@ public class ProductRepositoryImpl implements ProductRepository{
     @Override
     public Product getProductByLineItemIdAndMinify(Integer lineItemId) {
         return minify(getProductByLineItemId(lineItemId));
+    }
+
+    @Override
+    public Product getProductByName(String name) {
+        return productJPARepository.findProductByName(name);
     }
 }

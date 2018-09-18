@@ -179,8 +179,12 @@ public class ProductController {
     private Product updateProductWithFlag(ProductInput updatedProduct, Integer id, boolean createNewFlag, Integer shopId) throws Exception {
         Product prod;
 
+        if(!validProductInput(updatedProduct)) return null;
+
         // check if new Product is being created
         if(createNewFlag) {
+            if(productRepository.getProductByName(updatedProduct.getName()) != null) return null;
+
             prod = new Product();
 
             // set shopId
@@ -198,9 +202,16 @@ public class ProductController {
         prod.setDescription(updatedProduct.getDescription());
         prod.setPrice(updatedProduct.getPrice());
 
-        productRepository.save(prod);
+        prod = productRepository.saveProduct(prod);
 
         return prod;
+    }
+
+    private boolean validProductInput(ProductInput updatedProduct) {
+        return updatedProduct.getName() != null
+            && updatedProduct.getName().length() > 0
+            && updatedProduct.getPrice() != null
+            && updatedProduct.getPrice() > 0;
     }
 
 

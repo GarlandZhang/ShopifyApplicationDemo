@@ -17,10 +17,5 @@ public interface ShopJPARepository extends JpaRepository<Shop, Integer> {
 
     List<Shop> findAllByVendorId(Integer vendorId);
 
-    @Modifying
-    @Transactional
-    @Query("delete from Shop s where s.shopId = :id")
-    void deleteShopGivenId(@Param("id") Integer shopId);
-
-    Shop removeShopByShopId(Integer shopId);
+    Shop findShopByName(String name);
 }

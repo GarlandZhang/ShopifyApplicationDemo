@@ -46,7 +46,7 @@ public class ShopController {
 
         Shop savedShop = updateShopByIdWithFlag(newShop, -1, true);
 
-        if(savedShop == null) ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        if(savedShop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Create unsuccessful")
                 .body(null);
 
@@ -65,9 +65,9 @@ public class ShopController {
 
         List<Shop> shops = shopRepository.getAll();
 
-        if(shops == null) ResponseEntity.status(HttpStatus.OK)
+        if(shops == null) return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(new ArrayList<>());
+                .body(new ShopListHeavyWrapper());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
@@ -84,9 +84,9 @@ public class ShopController {
 
         List<Shop> shops = shopRepository.getAll();
 
-        if(shops == null) ResponseEntity.status(HttpStatus.OK)
+        if(shops == null) return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
-                .body(new ArrayList<>());
+                .body(new ShopListWrapper());
 
         ShopListWrapper shopListWrapper = new ShopListWrapper(shops);
 
@@ -225,9 +225,16 @@ public class ShopController {
     private Shop updateShopByIdWithFlag(@RequestBody ShopInput updatedShop, Integer id, boolean createNewFlag) throws Exception {
         Shop shop = null;
 
+        if(!validShopInput(updatedShop)) return null;
+
+        Shop existingShop = shopRepository.getShopByName(updatedShop.getName());
+
         if(createNewFlag) {
+            if(existingShop != null) return null;
             shop = new Shop();
         } else {
+            if(existingShop != null
+            && existingShop.getShopId() != id) return null;
             shop = shopRepository.getShopById(id);
         }
 
@@ -238,9 +245,15 @@ public class ShopController {
         shop.setVendorId(updatedShop.getVendorId());
         shop.setDescription(updatedShop.getDescription());
 
-        shopRepository.saveShop(shop);
+        shop = shopRepository.saveShop(shop);
 
         return shop;
+    }
+
+    private boolean validShopInput(ShopInput updatedShop) {
+        return updatedShop.getName() != null
+                && updatedShop.getName().length() > 0
+                && updatedShop.getVendorId() != null;
     }
 
     /**

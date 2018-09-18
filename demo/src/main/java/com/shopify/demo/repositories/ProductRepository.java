@@ -9,7 +9,7 @@ public interface ProductRepository {
 
     Product getProductByIdAndMinify(Integer id);
 
-    void save(Product prod);
+    Product saveProduct(Product prod);
 
     void deleteProductById(Integer productId);
 
@@ -24,4 +24,6 @@ public interface ProductRepository {
     Product getProductByLineItemId(Integer lineItemId);
 
     Product getProductByLineItemIdAndMinify(Integer lineItemId);
+
+    Product getProductByName(String name);
 }

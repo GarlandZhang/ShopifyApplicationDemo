@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -126,8 +125,8 @@ public class LineItemController {
         lineItem.setDiscount(updateLineItem.getDiscount() == null? 0 : updateLineItem.getDiscount());
         order.setTotal(order.getTotal() + calcTotalLineItem(lineItem));
 
-        lineItemRepository.saveLineItem(lineItem);
-        orderRepository.save(order);
+        lineItem = lineItemRepository.saveLineItem(lineItem);
+        orderRepository.saveOrder(order);
 
         return lineItem;
     }
@@ -261,7 +260,7 @@ public class LineItemController {
 
         // set new total
         order.setTotal(order.getTotal() - calcTotalLineItem(lineItem));
-        orderRepository.save(order);
+        orderRepository.saveOrder(order);
 
         try{
             lineItemRepository.deleteLineItemById(lineItemId);

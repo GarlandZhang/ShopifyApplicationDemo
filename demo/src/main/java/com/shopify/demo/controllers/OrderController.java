@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -72,7 +71,7 @@ public class OrderController {
                 .header("Status", "200: Success")
                 .body(new OrderListWrapper(orders));
     }
-    
+
     /**
      * getOrders: ADMIN USE ONLY. Gets all Order in database
      * @return all active Orders
@@ -109,7 +108,7 @@ public class OrderController {
                 .header("Status", "200: Success")
                 .body(new OrderOutput(order));
     }
-    
+
     /**
      * getOrder: Get Order with id, orderId
      * @param orderId
@@ -197,7 +196,7 @@ public class OrderController {
 
         // set new properties
         order.setUpdateDate(new Date(Calendar.getInstance().getTimeInMillis()));
-        orderRepository.save(order);
+        order = orderRepository.saveOrder(order);
 
         return order;
     }

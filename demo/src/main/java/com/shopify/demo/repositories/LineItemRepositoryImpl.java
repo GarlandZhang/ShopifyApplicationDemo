@@ -39,8 +39,8 @@ public class LineItemRepositoryImpl implements LineItemRepository{
     }
 
     @Override
-    public void saveLineItem(LineItem lineItem) {
-        lineItemJPARepository.save(lineItem);
+    public LineItem saveLineItem(LineItem lineItem) {
+        return lineItemJPARepository.save(lineItem);
     }
 
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ShopRepository {
 
-    void saveShop(Shop shop);
+    Shop saveShop(Shop shop);
 
     Shop getShopById(Integer shopId);
 
@@ -21,4 +21,6 @@ public interface ShopRepository {
     List<Shop> getAllByVendor(Integer vendorId);
 
     List<Shop> getAllAndMinifyByVendor(Integer vendorId);
+
+    Shop getShopByName(String name);
 }
