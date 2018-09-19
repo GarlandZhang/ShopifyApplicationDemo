@@ -40,7 +40,7 @@ public class LineItemController {
      * createOrderAndAddLineItem: adds a new Line Item to a newly created order
      */
     @PostMapping("/shop/{shopId}/order/new/line-item/create/for/product/{productId}")
-    private ResponseEntity<LineItemOutput> createOrderAndAddLineItem(@RequestBody LineItemInput lineItem, @PathVariable Integer shopId, @PathVariable Integer orderId, @PathVariable Integer productId) throws Exception {
+    private ResponseEntity<LineItemOutput> createOrderAndAddLineItem(@RequestBody LineItemInput lineItem, @PathVariable Integer shopId, @PathVariable Integer productId) throws Exception {
         // check if properties defined in lineItem are valid
         if(invalidLineItem(lineItem)) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Invalid arguments passed")
@@ -55,11 +55,14 @@ public class LineItemController {
 
 
         // return a newly created line item
-        LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, orderId, productId,true);
+        LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, order.getOrderId(), productId,true);
 
-        if(newLineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .header("Status", "400: Create unsuccessful")
-                .body(null);
+        if(newLineItem == null) {
+            orderRepository.deleteOrderById(order.getOrderId());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Create unsuccessful")
+                    .body(null);
+        }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Create successful")
@@ -85,7 +88,7 @@ public class LineItemController {
         // return a newly created line item
         LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, orderId, productId, true);
         
-        if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        if(newLineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Create unsuccessful")
                 .body(null);
 
@@ -312,5 +315,6 @@ public class LineItemController {
                     .body(new Message("Delete unsuccessful"));
         }
     }
+
 
 }

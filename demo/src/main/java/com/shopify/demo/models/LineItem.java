@@ -24,11 +24,11 @@ public class LineItem {
     Float price;
     Float discount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name="orderId", insertable = false, updatable = false)
     Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name="productId", insertable = false, updatable = false)
     Product product;
 

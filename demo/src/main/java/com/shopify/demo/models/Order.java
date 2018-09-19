@@ -31,7 +31,7 @@ public class Order {
     Float total;
     String status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
 
@@ -41,7 +41,7 @@ public class Order {
     User customer;
 */
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     List<LineItem> lineItems;
 
     public Order() {

@@ -23,11 +23,11 @@ public class Product {
     Float price;
     Integer shopId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     List<LineItem> lineItems;
 
 }
