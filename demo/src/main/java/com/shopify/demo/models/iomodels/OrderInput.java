@@ -7,10 +7,16 @@ import lombok.Setter;
 
 import java.sql.Date;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class OrderInput {
-    Integer shopId;
+    String status;
+
+    public OrderInput() {
+        status = "INCOMPLETE";
+    }
+
+    public OrderInput(String status) {
+        this.status = status;
+    }
 }

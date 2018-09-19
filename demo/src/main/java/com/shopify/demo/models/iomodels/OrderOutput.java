@@ -24,6 +24,7 @@ public class OrderOutput {
     Date updateDate;
     Float total;
     List<Integer> lineItems;
+    String status;
 
     public OrderOutput() {
         orderId = 0;
@@ -32,6 +33,7 @@ public class OrderOutput {
         updateDate = new Date(Calendar.getInstance().getTimeInMillis());
         total = (float) 0;
         lineItems = new ArrayList<>();
+        status = "INCOMPLETE";
     }
 
     public OrderOutput(Order order) {
@@ -41,6 +43,7 @@ public class OrderOutput {
         creationDate = order.getCreationDate();
         updateDate = order.getUpdateDate();
         total = order.getTotal();
+        status = order.getStatus();
 
         if(order.getLineItems() != null) {
             for(LineItem lineItem : order.getLineItems()) {

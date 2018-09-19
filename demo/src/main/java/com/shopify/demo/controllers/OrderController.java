@@ -36,13 +36,24 @@ public class OrderController {
     LineItemRepository lineItemRepository;
 
     /**
+     * internalCreateOrder: creates new Order with properties in newOrder for Shop with id, shopId; only for internal use
+     * @param newOrder
+     * @param shopId
+     * @return returns the newly created Order
+     * @throws Exception
+     */
+    public Order internalCreateOrder(OrderInput newOrder, Integer shopId) throws Exception {
+        return updateOrderWithFlag(newOrder, -1, true, shopId);
+    }
+
+    /**
      * createOrder: creates new Order with properties in newOrder for Shop with id, shopId
      * @param newOrder
      * @param shopId
      * @return returns the newly created Order
      * @throws Exception
      */
-    @PostMapping("/shop/{shopId}/order/create")
+//    @PostMapping("/shop/{shopId}/order/create")
     private ResponseEntity<OrderOutput> createOrder(@RequestBody OrderInput newOrder, @PathVariable Integer shopId) throws Exception {
         Order order = updateOrderWithFlag(newOrder, -1, true, shopId);
 
@@ -155,6 +166,7 @@ public class OrderController {
      */
     @PutMapping("/order/{orderId}")
     private ResponseEntity<OrderHeavyOutput> updateOrder(@RequestBody OrderInput updatedOrder, @PathVariable Integer orderId) throws Exception {
+
         Order order = updateOrderWithFlag(updatedOrder, orderId, false, -1);
 
         if(order == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -164,6 +176,19 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Success")
                 .body(new OrderHeavyOutput(order));
+    }
+
+    /**
+     * validOrder: validates whether updatedOrder is a valid OrderInput
+     * @param updatedOrder
+     * @return
+     */
+    private boolean validOrder(OrderInput updatedOrder) {
+        return updatedOrder != null
+            && updatedOrder.getStatus() != null
+            && (updatedOrder.getStatus().equals("INCOMPLETE")
+            ||  updatedOrder.getStatus().equals("COMPLETE")
+            ||  updatedOrder.getStatus().equals("CANCELLED"));
     }
 
     /**
@@ -177,6 +202,9 @@ public class OrderController {
      * @throws Exception
      */
     private Order updateOrderWithFlag(OrderInput newOrder, Integer id, boolean createNewFlag, Integer shopId) throws Exception {
+
+        if(!validOrder(newOrder)) return null;
+
         Order order;
 
         // if true, create new Order and set property
@@ -187,6 +215,7 @@ public class OrderController {
             Shop shop = shopRepository.getShopById(shopId);
             if(shop == null) return null;
             order.setShopId(shopId);
+            order.setCreationDate(new Date(Calendar.getInstance().getTimeInMillis()));
 
         } else {
             order = orderRepository.getOrderById(id);
@@ -195,6 +224,7 @@ public class OrderController {
         if(order == null) return null;
 
         // set new properties
+        order.setStatus(newOrder.getStatus());
         order.setUpdateDate(new Date(Calendar.getInstance().getTimeInMillis()));
         order = orderRepository.saveOrder(order);
 
@@ -213,8 +243,8 @@ public class OrderController {
             orderRepository.deleteOrderById(orderId);
         } catch(Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Status", "500: Delete unsuccessful")
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Delete unsuccessful")
                     .body(new Message("Delete unsuccessful"));
         }
 

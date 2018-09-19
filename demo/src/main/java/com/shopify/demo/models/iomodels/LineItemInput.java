@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LineItemInput {
-    Integer productId;
     String properties;
     Integer quantity;
     Float discount;

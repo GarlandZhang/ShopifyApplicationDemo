@@ -33,6 +33,38 @@ public class LineItemController {
     @Autowired
     OrderRepository orderRepository;
 
+    @Autowired
+    OrderController orderController;
+
+    /**
+     * createOrderAndAddLineItem: adds a new Line Item to a newly created order
+     */
+    @PostMapping("/shop/{shopId}/order/new/line-item/create/for/product/{productId}")
+    private ResponseEntity<LineItemOutput> createOrderAndAddLineItem(@RequestBody LineItemInput lineItem, @PathVariable Integer shopId, @PathVariable Integer orderId, @PathVariable Integer productId) throws Exception {
+        // check if properties defined in lineItem are valid
+        if(invalidLineItem(lineItem)) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Invalid arguments passed")
+                .body(null);
+
+        Product product = productRepository.getProductById(productId);
+        Order order = orderController.internalCreateOrder(new OrderInput(), shopId);
+
+        if(order == null || product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Create unsuccessful")
+                .body(null);
+
+
+        // return a newly created line item
+        LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, orderId, productId,true);
+
+        if(newLineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("Status", "400: Create unsuccessful")
+                .body(null);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Create successful")
+                .body(new LineItemOutput(newLineItem));
+    }
 
     /**
      * addLineItemToOrder: adds a new Line Item, with properties in lineItem, to the order with orderId
@@ -40,8 +72,10 @@ public class LineItemController {
      * @param orderId
      * @return the newly created LineItem
      */
-    @PostMapping("/order/{orderId}/line-item/create")
-    private ResponseEntity<LineItemOutput> addLineItemToOrder(@RequestBody LineItemInput lineItem, @PathVariable Integer orderId) throws Exception {
+    @PostMapping("/order/{orderId}/line-item/create/for/product/{productId}")
+    private ResponseEntity<LineItemOutput> addLineItemToOrder(@RequestBody LineItemInput lineItem,
+                                                              @PathVariable Integer orderId,
+                                                              @PathVariable Integer productId) throws Exception {
 
         // check if properties defined in lineItem are valid
         if(invalidLineItem(lineItem)) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -49,10 +83,10 @@ public class LineItemController {
                 .body(null);
 
         // return a newly created line item
-        LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, orderId, true);
+        LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, orderId, productId, true);
         
         if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .header("Status", "500: Create unsuccessful")
+                .header("Status", "400: Create unsuccessful")
                 .body(null);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -67,7 +101,6 @@ public class LineItemController {
      */
     private boolean invalidLineItem(LineItemInput lineItem) {
         return lineItem == null
-                || lineItem.getProductId() == null
                 || (lineItem.getDiscount() != null && (lineItem.getDiscount() < 0 || lineItem.getDiscount() > 1))
                 || lineItem.getQuantity() == null
                 || lineItem.getQuantity() <= 0;
@@ -85,8 +118,9 @@ public class LineItemController {
      * @throws Exception
      */
     private LineItem updateLineItemByIdWithFlag(@RequestBody LineItemInput updateLineItem,
-                                                      Integer lineItemId ,
+                                                      Integer lineItemId,
                                                       Integer orderId,
+                                                      Integer productId,
                                                       boolean createNewFlag) throws Exception {
 
         LineItem lineItem = null;
@@ -97,9 +131,9 @@ public class LineItemController {
             lineItem = new LineItem();
 
             // fetch product; set price and product id of parent product
-            Product product = productRepository.getProductById(updateLineItem.getProductId());
+            Product product = productRepository.getProductById(productId);
             if(product == null) return null;
-            lineItem.setProductId(updateLineItem.getProductId());
+            lineItem.setProductId(productId);
             lineItem.setPrice(product.getPrice());
 
             // fetch order; set order id of parent order
@@ -228,7 +262,7 @@ public class LineItemController {
                 .header("Status", "400: Invalid arguments passed")
                 .body(null);
 
-        LineItem updatedLineItem = updateLineItemByIdWithFlag(lineItem, lineItemId, -1, false);
+        LineItem updatedLineItem = updateLineItemByIdWithFlag(lineItem, lineItemId, -1, -1, false);
         
         if(lineItem == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header("Status", "500: Update unsuccessful")
@@ -258,22 +292,25 @@ public class LineItemController {
                 .header("Status", "500: Could not successfully retrieve Order")
                 .body(new Message("Could not successfully retrieve Order with id :" + lineItemId));
 
-        // set new total
-        order.setTotal(order.getTotal() - calcTotalLineItem(lineItem));
-        orderRepository.saveOrder(order);
 
         try{
-            lineItemRepository.deleteLineItemById(lineItemId);
+            if(order.getLineItems().size() == 1){
+                orderRepository.deleteOrderById(order.getOrderId());
+            } else {
+                // set new total
+                order.setTotal(order.getTotal() - calcTotalLineItem(lineItem));
+                orderRepository.saveOrder(order);
+                lineItemRepository.deleteLineItemById(lineItemId);
+            }
+            return ResponseEntity.status(HttpStatus.OK)
+                    .header("Status", "200: Delete successful")
+                    .body(new Message("Delete successful"));
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .header("Status", "500: Delete unsuccessful")
                     .body(new Message("Delete unsuccessful"));
         }
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .header("Status", "200: Delete successful")
-                .body(new Message("Delete successful"));
     }
 
 }

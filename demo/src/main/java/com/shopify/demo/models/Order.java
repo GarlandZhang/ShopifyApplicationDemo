@@ -29,6 +29,7 @@ public class Order {
     Date creationDate;
     Date updateDate;
     Float total;
+    String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="shopId", insertable=false, updatable=false)
@@ -47,6 +48,8 @@ public class Order {
         // initialize default values
         creationDate = new Date(Calendar.getInstance().getTimeInMillis());
         updateDate = new Date(Calendar.getInstance().getTimeInMillis());
+//        customerId = 0;
         total = (float) 0;
+        status = "INCOMPLETE";
     }
 }
