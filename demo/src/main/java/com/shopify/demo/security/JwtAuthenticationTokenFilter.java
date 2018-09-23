@@ -15,7 +15,7 @@ import java.io.IOException;
 public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
 
     public JwtAuthenticationTokenFilter() {
-        super("/rest/**"); //therefore all urls will pass through this filter
+        super("/**/secure/**"); //therefore all urls will pass through this filter
     }
 
     // where we handle request and validate
@@ -25,7 +25,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         // extract from header
         String header = httpServletRequest.getHeader("Authorization");
 
-        if(header == null || !header.startsWith("Token ")) {
+        if(header == null || !header.startsWith("Bearer ")) {
             throw new RuntimeException("JWT Token is missing");
         }
 

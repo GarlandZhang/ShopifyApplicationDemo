@@ -7,6 +7,8 @@ import com.shopify.demo.models.iomodels.*;
 import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.ProductRepository;
 import com.shopify.demo.repositories.ShopRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +42,30 @@ public class ProductController {
      * @return the newly created Product
      * @throws Exception
      */
-    @PostMapping("/shop/{shopId}/product/create")
-    private ResponseEntity<ProductOutput> createProduct(@RequestBody ProductInput newProduct, @PathVariable Integer shopId) throws Exception{
+    @PostMapping("/shop/{shopId}/product/create/secure")
+    private ResponseEntity<ProductOutput> createProduct(@RequestBody ProductInput newProduct, @PathVariable Integer shopId, @RequestHeader String authorization) throws Exception{
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Shop shop = shopRepository.getShopById(shopId);
+
+            if(shop == null || shop.getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
+
         Product product = updateProductWithFlag(newProduct, -1,true, shopId);
 
         if(product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -152,9 +176,30 @@ public class ProductController {
      * @return an updated existing Product
      * @throws Exception
      */
-    @PutMapping("/product/{productId}")
+    @PutMapping("/product/{productId}/secure")
     private ResponseEntity<ProductHeavyOutput> updateProduct(@RequestBody ProductInput updatedProduct,
-                                                             @PathVariable Integer productId) throws Exception {
+                                                             @PathVariable Integer productId, @RequestHeader String authorization) throws Exception {
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Product product = productRepository.getProductById(productId);
+
+            if(product == null || product.getShop().getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
         Product product = updateProductWithFlag(updatedProduct, productId, false, -1);
 
         if(product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -220,8 +265,31 @@ public class ProductController {
      * @param productId
      * @return successful deletion message
      */
-    @DeleteMapping("/product/{productId}")
-    private ResponseEntity<Message> deleteProduct(@PathVariable Integer productId) {
+    @DeleteMapping("/product/{productId}/secure")
+    private ResponseEntity<Message> deleteProduct(@PathVariable Integer productId, @RequestHeader String authorization) {
+
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Product product = productRepository.getProductById(productId);
+
+            if(product == null || product.getShop().getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
+
         try{
             productRepository.deleteProductById(productId);
         } catch(Exception e) {

@@ -5,8 +5,10 @@ import com.shopify.demo.models.User;
 import com.shopify.demo.models.iomodels.ShopListHeavyWrapper;
 import com.shopify.demo.models.iomodels.UserInput;
 import com.shopify.demo.models.iomodels.UserOutput;
+import com.shopify.demo.models.iomodels.UserOutputWithTokenWrapper;
 import com.shopify.demo.repositories.ShopRepository;
 import com.shopify.demo.repositories.UserRepository;
+import com.shopify.demo.security.JwtGenerator;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,9 @@ import java.util.List;
 import static lombok.AccessLevel.PACKAGE;
 import static lombok.AccessLevel.PRIVATE;
 
+
 @RestController
-@RequestMapping("/rest")
+@RequestMapping("/user")
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 @AllArgsConstructor(access = PACKAGE)
 public class UserController {
@@ -36,15 +39,15 @@ public class UserController {
      * @param userInput
      * @return
      */
-    @PostMapping("/create/user")
-    private ResponseEntity<UserOutput> createUser(@RequestBody UserInput userInput) {
+    @PostMapping("/create")
+    private ResponseEntity<UserOutputWithTokenWrapper> createUser(@RequestBody UserInput userInput) {
 
         if(userRepository.getUserByUsername(userInput.getUsername()) != null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .header("Status", "400: User already exists with username: " + userInput.getUsername())
+                .header("Status", "400: User already exists with userName: " + userInput.getUsername())
                 .body(null);
 
         User user = new User();
-        user.setUsername(userInput.getUsername());
+        user.setUserName(userInput.getUsername());
         user.setRole("GENERAL");
 
         int i = (int) (Math.random() * 1000);
@@ -56,18 +59,21 @@ public class UserController {
 
         userRepository.save(user);
 
+        JwtGenerator jwtGenerator = new JwtGenerator();
+        String token = jwtGenerator.generate(user);
+
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Create successful")
-                .body(new UserOutput(user));
+                .body(new UserOutputWithTokenWrapper(new UserOutput(user), token));
     }
 
     /**
-     * getUser: get User by userOd
+     * getUser: get User by userId
      * @param userId
      * @return
      */
-    @GetMapping("/user/{userId}")
-    private ResponseEntity<UserOutput> getUser(@PathVariable Integer userId) {
+    @GetMapping("/{userId}")
+    private ResponseEntity<UserOutput> getUser(@PathVariable Integer userId, @RequestHeader String authorization) {
         User user = userRepository.getUserByUserId(userId);
 
         if(user == null)  return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -77,6 +83,25 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Create successful")
                 .body(new UserOutput(user));
+    }
+
+    /**
+     * generate: generates new token with UserInput
+     * @return
+     */
+    @PostMapping("/{userName}/generate/token")
+    public ResponseEntity<String> generate(@PathVariable String userName) {
+        JwtGenerator jwtGenerator = new JwtGenerator();
+
+        String token = jwtGenerator.generate(userRepository.getUserByUsername(userName));
+
+        if(token.length() == 0) return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("Status", "500: User does not exist")
+                .body(token);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Status", "200: Success")
+                .body(token);
     }
 
     /**

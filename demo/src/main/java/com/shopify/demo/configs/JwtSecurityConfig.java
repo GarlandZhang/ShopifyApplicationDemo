@@ -53,7 +53,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable()
-                .authorizeRequests().antMatchers("**/rest/**").authenticated() //which endpoints need auth
+                .authorizeRequests().antMatchers("**/secure/**").authenticated() //which endpoints need auth
                 .and()
                 .exceptionHandling().authenticationEntryPoint(entryPoint) //redirect when user access unauthorized endpoint
                 .and()

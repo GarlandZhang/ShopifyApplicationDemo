@@ -4,10 +4,8 @@ import com.shopify.demo.models.JwtAuthenticationToken;
 import com.shopify.demo.models.JwtUserDetails;
 import com.shopify.demo.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -30,7 +28,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) throws AuthenticationException {
 
-        // we will not use username
+        // we will not use userName
 
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
         String token = jwtAuthenticationToken.getToken();
@@ -47,7 +45,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
                 .commaSeparatedStringToAuthorityList(user.getRole());
 
         // now spring can validate using the user details
-        return new JwtUserDetails(user.getUsername(), user.getUserId(), token, grantedAuthorities);
+        return new JwtUserDetails(user.getUserName(), user.getUserId(), token, grantedAuthorities);
     }
 
     @Override

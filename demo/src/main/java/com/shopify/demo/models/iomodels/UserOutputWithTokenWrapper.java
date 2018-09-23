@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
-public class ShopInput {
-    String name;
-    String description;
-//    Integer userId;
+@Getter
+public class UserOutputWithTokenWrapper {
+    UserOutput userOutput;
+    String token;
 }

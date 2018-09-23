@@ -15,7 +15,7 @@ public class UserRepositoryImpl implements UserRepository{
 
     @Override
     public User getUserByUserId(Integer userId) {
-        return userJPARepository.findUserById(userId);
+        return userJPARepository.findUserByUserId(userId);
     }
 
     @Override

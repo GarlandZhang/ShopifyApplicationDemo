@@ -7,6 +7,8 @@ import com.shopify.demo.models.iomodels.*;
 import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ShopRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,8 +166,30 @@ public class OrderController {
      * @return updated Order
      * @throws Exception
      */
-    @PutMapping("/order/{orderId}")
-    private ResponseEntity<OrderHeavyOutput> updateOrder(@RequestBody OrderInput updatedOrder, @PathVariable Integer orderId) throws Exception {
+    @PutMapping("/order/{orderId}/secure")
+    private ResponseEntity<OrderHeavyOutput> updateOrder(@RequestBody OrderInput updatedOrder, @PathVariable Integer orderId, @RequestHeader String authorization) throws Exception {
+
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Order order = orderRepository.getOrderById(orderId);
+
+            if(order == null || order.getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
 
         Order order = updateOrderWithFlag(updatedOrder, orderId, false, -1);
 
@@ -236,8 +260,30 @@ public class OrderController {
      * @param orderId
      * @return message that Order successfully cancelled
      */
-    @DeleteMapping("/order/{orderId}")
-    private ResponseEntity<Message> cancelOrder(@PathVariable Integer orderId) {
+    @DeleteMapping("/order/{orderId}/secure")
+    private ResponseEntity<Message> cancelOrder(@PathVariable Integer orderId, @RequestHeader String authorization) {
+
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Order order = orderRepository.getOrderById(orderId);
+
+            if(order == null || order.getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
 
         try{
             orderRepository.deleteOrderById(orderId);

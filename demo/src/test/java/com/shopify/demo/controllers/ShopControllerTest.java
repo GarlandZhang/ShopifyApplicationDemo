@@ -28,7 +28,7 @@ public class ShopControllerTest {
         ShopInput shopInput = new ShopInput();
         shopInput.setName("Shopify");
         shopInput.setDescription("Get your business up and running with our e-commerce platform!");
-        shopInput.setUserId(123);
+//        shopInput.setUserId(123);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -94,7 +94,7 @@ public class ShopControllerTest {
         ShopInput shopInput = new ShopInput();
         shopInput.setName("");
         shopInput.setDescription("Get your business up and running with our e-commerce platform!");
-        shopInput.setUserId(123);
+//        shopInput.setUserId(123);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -110,7 +110,7 @@ public class ShopControllerTest {
         ShopInput shopInput = new ShopInput();
         shopInput.setName("Shopify");
         shopInput.setDescription("Get your business up and running with our e-commerce platform!");
-        shopInput.setUserId(123);
+//        shopInput.setUserId(123);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -122,7 +122,7 @@ public class ShopControllerTest {
         ShopInput shopInput2 = new ShopInput();
         shopInput2.setName("Shopify");
         shopInput2.setDescription("Get your business up and running with our e-commerce platform!");
-        shopInput2.setUserId(123);
+//        shopInput2.setUserId(123);
 
         HttpEntity<ShopInput> entity2 = new HttpEntity<ShopInput>(shopInput2, headers);
         ResponseEntity<ShopOutput> shopOutputResponseEntity2 = testRestTemplate.postForEntity("/shop/create", entity2, ShopOutput.class);
@@ -137,7 +137,7 @@ public class ShopControllerTest {
         ShopInput shopInput = new ShopInput();
         shopInput.setName("");
         shopInput.setDescription("Get your business up and running with our e-commerce platform!");
-        shopInput.setUserId(123);
+//        shopInput.setUserId(123);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -153,7 +153,7 @@ public class ShopControllerTest {
         ShopInput shopInput = new ShopInput();
         shopInput.setName("ban");
         shopInput.setDescription("Get your business up and running with our e-commerce platform!");
-        shopInput.setUserId(123);
+//        shopInput.setUserId(123);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -169,7 +169,7 @@ public class ShopControllerTest {
         ShopInput shopInput = new ShopInput();
         shopInput.setName("Shopify");
         shopInput.setDescription("Get your business up and running with our e-commerce platform!");
-        shopInput.setUserId(123);
+//        shopInput.setUserId(123);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

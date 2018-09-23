@@ -3,9 +3,7 @@ package com.shopify.demo.models.iomodels;
 import com.shopify.demo.models.Order;
 import com.shopify.demo.models.Shop;
 import com.shopify.demo.models.User;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -30,8 +28,9 @@ public class UserOutput {
     }
 
     public UserOutput(User user) {
+        this();
         userId = user.getUserId();
-        username = user.getUsername();
+        username = user.getUserName();
         role = user.getRole();
 
         if(user.getShops() != null) {

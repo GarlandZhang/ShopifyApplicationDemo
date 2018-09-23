@@ -3,10 +3,14 @@ package com.shopify.demo.controllers;
 import com.shopify.demo.models.Order;
 import com.shopify.demo.models.Product;
 import com.shopify.demo.models.Shop;
+import com.shopify.demo.models.User;
 import com.shopify.demo.models.iomodels.*;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ProductRepository;
 import com.shopify.demo.repositories.ShopRepository;
+import com.shopify.demo.repositories.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,9 @@ public class ShopController {
 
     @Autowired
     OrderRepository orderRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     /**
      * createNew: creates new Shop with newShop fields
@@ -241,7 +248,7 @@ public class ShopController {
 
         // update with new properties
         shop.setName(updatedShop.getName());
-        shop.setUserId(updatedShop.getUserId());
+//        shop.setUserId(updatedShop.getUserId());
         shop.setDescription(updatedShop.getDescription());
 
         shop = shopRepository.saveShop(shop);
@@ -251,8 +258,8 @@ public class ShopController {
 
     private boolean validShopInput(ShopInput updatedShop) {
         return updatedShop.getName() != null
-                && updatedShop.getName().length() > 0
-                && updatedShop.getUserId() != null;
+                && updatedShop.getName().length() > 0;
+//                && updatedShop.getUserId() != null;
     }
 
     /**
@@ -262,8 +269,31 @@ public class ShopController {
      * @return updated Shop
      * @throws Exception
      */
-    @PutMapping("/{shopId}")
-    private ResponseEntity<ShopHeavyOutput> updateShopById(@RequestBody ShopInput updatedShop, @PathVariable Integer shopId) throws Exception {
+    @PutMapping("/{shopId}/secure")
+    private ResponseEntity<ShopHeavyOutput> updateShopById(@RequestBody ShopInput updatedShop, @PathVariable Integer shopId, @RequestHeader String authorization) throws Exception {
+
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Shop shop = shopRepository.getShopById(shopId);
+
+            if(shop == null || shop.getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
+
         Shop shop = updateShopByIdWithFlag(updatedShop, shopId, false);
 
         if(shop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -281,8 +311,30 @@ public class ShopController {
      * @return successful deletion message
      * @throws Exception
      */
-    @DeleteMapping("/{shopId}")
-    private ResponseEntity<Message> deleteShopById(@PathVariable Integer shopId) throws Exception {
+    @DeleteMapping("/{shopId}/secure")
+    private ResponseEntity<Message> deleteShopById(@PathVariable Integer shopId, @RequestHeader String authorization) throws Exception {
+
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Shop shop = shopRepository.getShopById(shopId);
+
+            if(shop == null || shop.getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
 
         try{
             shopRepository.deleteShopById(shopId);

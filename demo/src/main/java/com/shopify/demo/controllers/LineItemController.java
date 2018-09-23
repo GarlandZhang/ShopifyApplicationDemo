@@ -7,6 +7,8 @@ import com.shopify.demo.models.iomodels.*;
 import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ProductRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,10 +80,32 @@ public class LineItemController {
      * @param orderId
      * @return the newly created LineItem
      */
-    @PostMapping("/order/{orderId}/line-item/create/for/product/{productId}")
+    @PostMapping("/order/{orderId}/line-item/create/for/product/{productId}/secure")
     private ResponseEntity<LineItemOutput> addLineItemToOrder(@RequestBody LineItemInput lineItem,
                                                               @PathVariable Integer orderId,
-                                                              @PathVariable Integer productId) throws Exception {
+                                                              @PathVariable Integer productId, @RequestHeader String authorization) throws Exception {
+
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            Order order = orderRepository.getOrderById(orderId);
+
+            if(order == null || order.getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
 
         // check if properties defined in lineItem are valid
         if(invalidLineItem(lineItem)) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -258,8 +282,30 @@ public class LineItemController {
      * @return the updated LineItem
      * @throws Exception
      */
-    @PutMapping("/line-item/{lineItemId}")
-    private ResponseEntity<LineItemOutput> updateLineItemId(@RequestBody LineItemInput lineItem, @PathVariable Integer lineItemId) throws Exception {
+    @PutMapping("/line-item/{lineItemId}/secure")
+    private ResponseEntity<LineItemOutput> updateLineItemId(@RequestBody LineItemInput lineItem, @PathVariable Integer lineItemId, @RequestHeader String authorization) throws Exception {
+
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            LineItem lineItem1 = lineItemRepository.getLineItemById(lineItemId);
+
+            if(lineItem1 == null || lineItem1.getOrder().getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
 
         LineItem existingLineItem = lineItemRepository.getLineItemById(lineItemId);
         if(existingLineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -287,8 +333,29 @@ public class LineItemController {
      * @return message of successful deletion
      * @throws Exception
      */
-    @DeleteMapping("/line-item/{lineItemId}")
-    private ResponseEntity<Message> deleteLineItemId(@PathVariable Integer lineItemId) throws Exception {
+    @DeleteMapping("/line-item/{lineItemId}/secure")
+    private ResponseEntity<Message> deleteLineItemId(@PathVariable Integer lineItemId, @RequestHeader String authorization) throws Exception {
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+            LineItem lineItem1 = lineItemRepository.getLineItemById(lineItemId);
+
+            if(lineItem1 == null || lineItem1.getOrder().getUserId() != Integer.parseInt((String)body.get("userId")))
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
 
         LineItem lineItem = lineItemRepository.getLineItemById(lineItemId);
         if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -320,6 +387,4 @@ public class LineItemController {
                     .body(new Message("Delete unsuccessful"));
         }
     }
-
-
 }
