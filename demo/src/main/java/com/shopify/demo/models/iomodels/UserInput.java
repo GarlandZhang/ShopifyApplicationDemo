@@ -9,8 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ShopInput {
-    String name;
-    String description;
-    Integer userId;
+public class UserInput {
+    String username;
 }

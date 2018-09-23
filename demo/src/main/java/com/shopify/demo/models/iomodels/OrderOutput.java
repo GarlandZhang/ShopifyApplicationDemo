@@ -20,6 +20,7 @@ public class OrderOutput {
 
     Integer orderId;
     Integer shopId;
+    Integer userId;
     Date creationDate;
     Date updateDate;
     Float total;
@@ -29,6 +30,7 @@ public class OrderOutput {
     public OrderOutput() {
         orderId = 0;
         shopId = 0;
+        userId = 0;
         creationDate = new Date(Calendar.getInstance().getTimeInMillis());
         updateDate = new Date(Calendar.getInstance().getTimeInMillis());
         total = (float) 0;
@@ -40,6 +42,7 @@ public class OrderOutput {
         this();
         orderId = order.getOrderId();
         shopId = order.getShopId();
+        userId = order.getUserId();
         creationDate = order.getCreationDate();
         updateDate = order.getUpdateDate();
         total = order.getTotal();

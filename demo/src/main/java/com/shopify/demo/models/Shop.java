@@ -20,7 +20,7 @@ public class Shop {
     @Column(name = "shopId", nullable = false, updatable = false)
     Integer shopId;
     String name;
-    Integer vendorId;
+    Integer userId;
     String description;
 
     @OneToMany(mappedBy="shop", cascade = CascadeType.ALL)
@@ -28,4 +28,8 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     List<Product> products;
+
+    @ManyToOne
+    @JoinColumn(name="userId", insertable = false, updatable = false)
+    User user;
 }

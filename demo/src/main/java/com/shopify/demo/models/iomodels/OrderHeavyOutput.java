@@ -18,6 +18,7 @@ public class OrderHeavyOutput {
 
     Integer orderId;
     Integer shopId;
+    Integer userId;
     Date creationDate;
     Date updateDate;
     String status;
@@ -27,6 +28,7 @@ public class OrderHeavyOutput {
     public OrderHeavyOutput() {
         orderId = 0;
         shopId = 0;
+        userId = 0;
         creationDate = new Date(Calendar.getInstance().getTimeInMillis());
         updateDate = new Date(Calendar.getInstance().getTimeInMillis());
         total = (float) 0;
@@ -38,6 +40,7 @@ public class OrderHeavyOutput {
         this();
         orderId = order.getOrderId();
         shopId = order.getShopId();
+        userId = order.getUserId();
         creationDate = order.getCreationDate();
         updateDate = order.getUpdateDate();
         total = order.getTotal();

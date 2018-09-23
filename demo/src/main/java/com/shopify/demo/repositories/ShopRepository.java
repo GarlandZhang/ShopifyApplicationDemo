@@ -18,7 +18,7 @@ public interface ShopRepository {
 
     List<Shop> getAllAndMinify();
 
-    List<Shop> getAllByVendor(Integer vendorId);
+    List<Shop> getAllByUser(Integer userId);
 
     List<Shop> getAllAndMinifyByVendor(Integer vendorId);
 

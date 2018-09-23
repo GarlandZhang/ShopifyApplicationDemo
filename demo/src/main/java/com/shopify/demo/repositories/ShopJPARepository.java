@@ -15,7 +15,7 @@ public interface ShopJPARepository extends JpaRepository<Shop, Integer> {
 
     List<Shop> findAll();
 
-    List<Shop> findAllByVendorId(Integer vendorId);
+    List<Shop> findAllByUserId(Integer vendorId);
 
     Shop findShopByName(String name);
 }

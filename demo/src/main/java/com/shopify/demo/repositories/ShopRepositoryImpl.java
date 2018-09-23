@@ -53,7 +53,7 @@ public class ShopRepositoryImpl implements ShopRepository{
 
     @Override
     public List<Shop> getAllAndMinifyByVendor(Integer vendorId) {
-        List<Shop> shops = getAllByVendor(vendorId);
+        List<Shop> shops = getAllByUser(vendorId);
 
         for(Shop shop: shops) {
             minifify(shop);
@@ -68,8 +68,8 @@ public class ShopRepositoryImpl implements ShopRepository{
     }
 
     @Override
-    public List<Shop> getAllByVendor(Integer vendorId) {
-        return shopJPARepository.findAllByVendorId(vendorId);
+    public List<Shop> getAllByUser(Integer userId) {
+        return shopJPARepository.findAllByUserId(userId);
     }
 
     /**

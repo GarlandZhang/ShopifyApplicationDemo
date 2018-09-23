@@ -25,7 +25,7 @@ public class Order {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     Integer orderId;
     Integer shopId;
-//    Integer customerId;
+    Integer userId;
     Date creationDate;
     Date updateDate;
     Float total;
@@ -35,11 +35,9 @@ public class Order {
     @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
 
-/*
     @ManyToOne
-    @JoinColumn(name="customerId", insertable = false, updatable = false)
-    User customer;
-*/
+    @JoinColumn(name="userId", insertable = false, updatable = false)
+    User user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     List<LineItem> lineItems;

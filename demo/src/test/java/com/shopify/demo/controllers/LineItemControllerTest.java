@@ -262,6 +262,7 @@ public class LineItemControllerTest {
 
         assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
     }
+/*
 
     @Test
     public void updateLineItem() throws Exception {
@@ -282,6 +283,7 @@ public class LineItemControllerTest {
 
         assertEquals(154.00, order.getTotal().floatValue(), .1);
     }
+*/
 
     @Test
     public void updateLineItemWith2() throws Exception {

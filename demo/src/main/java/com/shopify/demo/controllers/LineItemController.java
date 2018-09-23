@@ -47,9 +47,12 @@ public class LineItemController {
                 .body(null);
 
         Product product = productRepository.getProductById(productId);
+
         Order order = orderController.internalCreateOrder(new OrderInput(), shopId);
 
-        if(order == null || product == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        if(order == null
+        || product == null
+        || product.getShopId() != shopId) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Create unsuccessful")
                 .body(null);
 
@@ -143,6 +146,8 @@ public class LineItemController {
             order = orderRepository.getOrderById(orderId);
             if(order == null) return null;
             lineItem.setOrderId(orderId);
+
+            if(order.getShopId() != product.getShopId()) return null;
         } else{
             // fetch line item
             lineItem = lineItemRepository.getLineItemById(lineItemId);

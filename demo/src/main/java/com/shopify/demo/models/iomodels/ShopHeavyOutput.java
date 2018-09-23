@@ -18,7 +18,7 @@ public class ShopHeavyOutput {
     Integer shopId;
     String name;
     String description;
-    Integer vendorId;
+    Integer userId;
     List<OrderHeavyOutput> orders;
     List<ProductOutput> products;
 
@@ -26,7 +26,7 @@ public class ShopHeavyOutput {
         shopId = 0;
         name = "";
         description = "";
-        vendorId = 0;
+        userId = 0;
         orders = new ArrayList<>();
         products = new ArrayList<>();
     }
@@ -36,7 +36,7 @@ public class ShopHeavyOutput {
         shopId = savedShop.getShopId();
         name = savedShop.getName();
         description = savedShop.getDescription();
-        vendorId = savedShop.getVendorId();
+        userId = savedShop.getUserId();
 
         if(savedShop.getOrders() != null) {
             for(Order order: savedShop.getOrders()) {

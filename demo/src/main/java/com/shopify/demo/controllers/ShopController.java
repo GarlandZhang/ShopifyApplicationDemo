@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -168,9 +167,9 @@ public class ShopController {
     }
 
 /*    //TODO: belongs in vendor controller but leave here for now
-     @GetMapping("/vendor/{vendorId}")
-     private List<Shop> getAllShopsByVendor(@PathVariable Integer vendorId) {
-     List<Shop> products = shopRepository.getAllMinByVendor(vendorId);
+     @GetMapping("/vendor/{userId}")
+     private List<Shop> getAllShopsByVendor(@PathVariable Integer userId) {
+     List<Shop> products = shopRepository.getAllMinByVendor(userId);
 
      if(products == null) return new ArrayList<Shop>();
 
@@ -242,7 +241,7 @@ public class ShopController {
 
         // update with new properties
         shop.setName(updatedShop.getName());
-        shop.setVendorId(updatedShop.getVendorId());
+        shop.setUserId(updatedShop.getUserId());
         shop.setDescription(updatedShop.getDescription());
 
         shop = shopRepository.saveShop(shop);
@@ -253,7 +252,7 @@ public class ShopController {
     private boolean validShopInput(ShopInput updatedShop) {
         return updatedShop.getName() != null
                 && updatedShop.getName().length() > 0
-                && updatedShop.getVendorId() != null;
+                && updatedShop.getUserId() != null;
     }
 
     /**
