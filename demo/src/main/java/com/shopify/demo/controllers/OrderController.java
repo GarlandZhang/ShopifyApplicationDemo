@@ -44,8 +44,8 @@ public class OrderController {
      * @return returns the newly created Order
      * @throws Exception
      */
-    public Order internalCreateOrder(OrderInput newOrder, Integer shopId) throws Exception {
-        return updateOrderWithFlag(newOrder, -1, true, shopId);
+    public Order internalCreateOrder(OrderInput newOrder, Integer shopId, Integer userId) throws Exception {
+        return updateOrderWithFlag(newOrder, -1, true, shopId, userId);
     }
 
     /**
@@ -56,8 +56,8 @@ public class OrderController {
      * @throws Exception
      */
 //    @PostMapping("/shop/{shopId}/order/create")
-    private ResponseEntity<OrderOutput> createOrder(@RequestBody OrderInput newOrder, @PathVariable Integer shopId) throws Exception {
-        Order order = updateOrderWithFlag(newOrder, -1, true, shopId);
+    private ResponseEntity<OrderOutput> createOrder(@RequestBody OrderInput newOrder, @PathVariable Integer shopId, Integer userId) throws Exception {
+        Order order = updateOrderWithFlag(newOrder, -1, true, shopId, userId);
 
         if(order == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Create unsuccessful")
@@ -167,7 +167,7 @@ public class OrderController {
      * @throws Exception
      */
     @PutMapping("/order/{orderId}/secure")
-    private ResponseEntity<OrderHeavyOutput> updateOrder(@RequestBody OrderInput updatedOrder, @PathVariable Integer orderId, @RequestHeader String authorization) throws Exception {
+    private ResponseEntity<OrderHeavyOutput> updateOrder(@RequestBody OrderInput updatedOrder, @PathVariable Integer orderId, @RequestHeader String authorization, Integer userId) throws Exception {
 
         // security check to make sure
         try {
@@ -191,7 +191,7 @@ public class OrderController {
                     .body(null);
         }
 
-        Order order = updateOrderWithFlag(updatedOrder, orderId, false, -1);
+        Order order = updateOrderWithFlag(updatedOrder, orderId, false, -1, userId);
 
         if(order == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Shop or Order does not exist with input id")
@@ -225,7 +225,7 @@ public class OrderController {
      * @return the newly created Order or updated Order
      * @throws Exception
      */
-    private Order updateOrderWithFlag(OrderInput newOrder, Integer id, boolean createNewFlag, Integer shopId) throws Exception {
+    private Order updateOrderWithFlag(OrderInput newOrder, Integer id, boolean createNewFlag, Integer shopId, Integer userId) throws Exception {
 
         if(!validOrder(newOrder)) return null;
 
@@ -240,6 +240,7 @@ public class OrderController {
             if(shop == null) return null;
             order.setShopId(shopId);
             order.setCreationDate(new Date(Calendar.getInstance().getTimeInMillis()));
+            order.setUserId(userId);
 
         } else {
             order = orderRepository.getOrderById(id);

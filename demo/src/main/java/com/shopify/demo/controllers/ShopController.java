@@ -47,10 +47,25 @@ public class ShopController {
      * @return newly created Shop
      * @throws Exception
      */
-    @PostMapping("/create")
-    private ResponseEntity<ShopOutput> createNew(@RequestBody ShopInput newShop) throws Exception {
+    @PostMapping("/create/secure")
+    private ResponseEntity<ShopOutput> createNew(@RequestBody ShopInput newShop, @RequestHeader String authorization) throws Exception {
 
-        Shop savedShop = updateShopByIdWithFlag(newShop, -1, true);
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
+
+           User user = userRepository.getUserByUserId( Integer.parseInt((String)body.get("userId")));
+
+        if(user == null)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
+
+        Shop savedShop = updateShopByIdWithFlag(newShop, -1, user.getUserId(), true);
 
         if(savedShop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Create unsuccessful")
@@ -59,6 +74,12 @@ public class ShopController {
         return ResponseEntity.status(HttpStatus.OK)
                 .header("Status", "200: Create successful")
                 .body(new ShopOutput(savedShop));
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
     }
 
     /**
@@ -228,7 +249,7 @@ public class ShopController {
      * @return the newly generated Shop or the updated existing Shop
      * @throws Exception
      */
-    private Shop updateShopByIdWithFlag(@RequestBody ShopInput updatedShop, Integer id, boolean createNewFlag) throws Exception {
+    private Shop updateShopByIdWithFlag(@RequestBody ShopInput updatedShop, Integer id, Integer userId, boolean createNewFlag) throws Exception {
         Shop shop = null;
 
         if(!validShopInput(updatedShop)) return null;
@@ -238,6 +259,7 @@ public class ShopController {
         if(createNewFlag) {
             if(existingShop != null) return null;
             shop = new Shop();
+            shop.setUserId(userId);
         } else {
             if(existingShop != null
             && existingShop.getShopId() != id) return null;
@@ -294,7 +316,7 @@ public class ShopController {
                     .body(null);
         }
 
-        Shop shop = updateShopByIdWithFlag(updatedShop, shopId, false);
+        Shop shop = updateShopByIdWithFlag(updatedShop, shopId, -1, false);
 
         if(shop == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .header("Status", "400: Shop does not exist with id: " + shopId)

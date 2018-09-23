@@ -3,10 +3,12 @@ package com.shopify.demo.controllers;
 import com.shopify.demo.models.LineItem;
 import com.shopify.demo.models.Order;
 import com.shopify.demo.models.Product;
+import com.shopify.demo.models.User;
 import com.shopify.demo.models.iomodels.*;
 import com.shopify.demo.repositories.LineItemRepository;
 import com.shopify.demo.repositories.OrderRepository;
 import com.shopify.demo.repositories.ProductRepository;
+import com.shopify.demo.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
@@ -38,40 +40,64 @@ public class LineItemController {
     @Autowired
     OrderController orderController;
 
+    @Autowired
+    UserRepository userRepository;
+
     /**
      * createOrderAndAddLineItem: adds a new Line Item to a newly created order
      */
-    @PostMapping("/shop/{shopId}/order/new/line-item/create/for/product/{productId}")
-    private ResponseEntity<LineItemOutput> createOrderAndAddLineItem(@RequestBody LineItemInput lineItem, @PathVariable Integer shopId, @PathVariable Integer productId) throws Exception {
-        // check if properties defined in lineItem are valid
-        if(invalidLineItem(lineItem)) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .header("Status", "400: Invalid arguments passed")
-                .body(null);
+    @PostMapping("/shop/{shopId}/order/new/line-item/create/for/product/{productId}/secure")
+    private ResponseEntity<LineItemOutput> createOrderAndAddLineItem(@RequestBody LineItemInput lineItem, @PathVariable Integer shopId, @PathVariable Integer productId, @RequestHeader String authorization) throws Exception {
+        // security check to make sure
+        try {
+            // parse token
+            Claims body = Jwts.parser()
+                    .setSigningKey("secret")
+                    .parseClaimsJws(authorization)
+                    .getBody(); // parse then get body of request
 
-        Product product = productRepository.getProductById(productId);
+            User user = userRepository.getUserByUserId(Integer.parseInt((String)body.get("userId")));
 
-        Order order = orderController.internalCreateOrder(new OrderInput(), shopId);
+            if(user == null)
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .header("Status", "401: Unauthorized")
+                        .body(null);
 
-        if(order == null
-        || product == null
-        || product.getShopId() != shopId) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .header("Status", "400: Create unsuccessful")
-                .body(null);
+            // check if properties defined in lineItem are valid
+            if(invalidLineItem(lineItem)) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid arguments passed")
+                    .body(null);
 
+            Product product = productRepository.getProductById(productId);
 
-        // return a newly created line item
-        LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, order.getOrderId(), productId,true);
+            Order order = orderController.internalCreateOrder(new OrderInput(), shopId, user.getUserId());
 
-        if(newLineItem == null) {
-            orderRepository.deleteOrderById(order.getOrderId());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            if(order == null
+                    || product == null
+                    || product.getShopId() != shopId) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Status", "400: Create unsuccessful")
                     .body(null);
-        }
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .header("Status", "200: Create successful")
-                .body(new LineItemOutput(newLineItem));
+
+            // return a newly created line item
+            LineItem newLineItem = updateLineItemByIdWithFlag(lineItem, -1, order.getOrderId(), productId,true);
+
+            if(newLineItem == null) {
+                orderRepository.deleteOrderById(order.getOrderId());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header("Status", "400: Create unsuccessful")
+                        .body(null);
+            }
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .header("Status", "200: Create successful")
+                    .body(new LineItemOutput(newLineItem));
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Invalid Token")
+                    .body(null);
+        }
     }
 
     /**

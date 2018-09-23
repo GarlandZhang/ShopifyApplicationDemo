@@ -1,3 +1,4 @@
+/*
 package com.shopify.demo.controllers;
 
 import com.shopify.demo.models.iomodels.*;
@@ -56,6 +57,7 @@ public class ShopControllerTest {
 
         assertEquals("House of Cards" , shopHeavyOutputResponseEntity.getBody().getName());
     }
+*/
 /*
     @Test
     public void getProductsOfShopById() throws Exception {
@@ -66,7 +68,8 @@ public class ShopControllerTest {
         ResponseEntity<ProductListHeavyWrapper> productListHeavyWrapperResponseEntity = testRestTemplate.getForEntity("/shop/1/product/all", ProductListHeavyWrapper.class);
 
         assertEquals(1 , productListHeavyWrapperResponseEntity.getBody().getProducts().size());
-    }*/
+    }*//*
+
 
     @Test
     public void getProductsOfFakeShopById() throws Exception {
@@ -200,4 +203,4 @@ public class ShopControllerTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, shopOutputResponseEntity2.getStatusCode());
     }
-}
+}*/

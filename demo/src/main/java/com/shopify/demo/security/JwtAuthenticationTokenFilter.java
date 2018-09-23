@@ -23,13 +23,13 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
 
         // extract from header
-        String header = httpServletRequest.getHeader("Authorization");
+        String header = httpServletRequest.getHeader("authorization");
 
-        if(header == null || !header.startsWith("Bearer ")) {
+        if(header == null || !header.startsWith("")) {
             throw new RuntimeException("JWT Token is missing");
         }
 
-        String authenticationToken = header.substring(6);
+        String authenticationToken = header.substring(0); // usually the value 0 would be the 'Bearer ' index
 
         JwtAuthenticationToken token = new JwtAuthenticationToken(authenticationToken);
 
