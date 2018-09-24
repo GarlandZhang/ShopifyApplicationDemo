@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
@@ -361,6 +362,8 @@ public class LineItemController {
      */
     @DeleteMapping("/line-item/{lineItemId}/secure")
     private ResponseEntity<Message> deleteLineItemId(@PathVariable Integer lineItemId, @RequestHeader String authorization) throws Exception {
+
+        LineItem lineItem;
         // security check to make sure
         try {
             // parse token
@@ -369,9 +372,13 @@ public class LineItemController {
                     .parseClaimsJws(authorization)
                     .getBody(); // parse then get body of request
 
-            LineItem lineItem1 = lineItemRepository.getLineItemById(lineItemId);
+            lineItem = lineItemRepository.getLineItemById(lineItemId);
 
-            if(lineItem1 == null || lineItem1.getOrder().getUserId() != Integer.parseInt((String)body.get("userId")))
+            if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Status", "400: Line Item does not exist with id: " + lineItemId)
+                    .body(new Message("Line Item does not exist with id: " + lineItemId));
+
+            if(lineItem.getOrder().getUserId() != Integer.parseInt((String)body.get("userId")))
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .header("Status", "401: Unauthorized")
                         .body(null);
@@ -383,11 +390,6 @@ public class LineItemController {
                     .body(null);
         }
 
-        LineItem lineItem = lineItemRepository.getLineItemById(lineItemId);
-        if(lineItem == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .header("Status", "400: Line Item does not exist with id: " + lineItemId)
-                .body(new Message("Line Item does not exist with id:" + lineItemId));
-
         Order order = orderRepository.getOrderByLineItemId(lineItemId);
         if(order == null) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header("Status", "500: Could not successfully retrieve Order")
@@ -395,13 +397,14 @@ public class LineItemController {
 
 
         try{
-            if(order.getLineItems().size() == 1){
-                orderRepository.deleteOrderById(order.getOrderId());
-            } else {
-                // set new total
-                order.setTotal(order.getTotal() - calcTotalLineItem(lineItem));
+            lineItemRepository.deleteLineItemById(lineItemId);
+
+            if(order.getLineItems().size() == 0) orderRepository.deleteOrderById(order.getOrderId());
+            else {
+                DecimalFormat df = new DecimalFormat();
+                df.setMaximumFractionDigits(2);
+                order.setTotal(Float.valueOf(df.format(order.getTotal() - calcTotalLineItem(lineItem))));
                 orderRepository.saveOrder(order);
-                lineItemRepository.deleteLineItemById(lineItemId);
             }
             return ResponseEntity.status(HttpStatus.OK)
                     .header("Status", "200: Delete successful")

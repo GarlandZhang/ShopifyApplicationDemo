@@ -31,7 +31,7 @@ public class Order {
     Float total;
     String status;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name="shopId", insertable=false, updatable=false)
     Shop shop;
 
